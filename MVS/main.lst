@@ -1,0 +1,709 @@
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 1 - 10/12/2016 21:12:09
+
+
+       1/       0 :                         cpu 68000
+       2/       0 :                     
+       3/       0 :                         supmode on
+       4/       0 :                     
+       5/       0 :                     	INCLUDE "regdefs.asm"
+(1)    1/       0 : =$0                 SCB1            equ $0000   ;VRAM, Sprite tilemaps
+(1)    2/       0 : =$7000              FIXMAP          equ $7000   ;VRAM, Fix map
+(1)    3/       0 : =$8000              SCB2            equ $8000   ;VRAM, Sprite shrink ratios
+(1)    4/       0 : =$8200              SCB3            equ $8200   ;VRAM, Sprite Y positions and sizes
+(1)    5/       0 : =$8400              SCB4            equ $8400   ;VRAM, Sprite X positions
+(1)    6/       0 :                     
+(1)    7/       0 : =$8000              BLACK           equ $8000
+(1)    8/       0 : =$1007              MIDBLUE         equ $1007
+(1)    9/       0 : =$100F              BLUE            equ $100F
+(1)   10/       0 : =$2070              MIDGREEN        equ $2070
+(1)   11/       0 : =$20F0              GREEN           equ $20F0
+(1)   12/       0 : =$3077              MIDCYAN         equ $3077
+(1)   13/       0 : =$30FF              CYAN            equ $30FF
+(1)   14/       0 : =$4700              MIDRED          equ $4700
+(1)   15/       0 : =$4F00              RED             equ $4F00
+(1)   16/       0 : =$5707              MIDMAGENTA      equ $5707
+(1)   17/       0 : =$5F0F              MAGENTA         equ $5F0F
+(1)   18/       0 : =$6F70              ORANGE          equ $6F70
+(1)   19/       0 : =$6770              MIDYELLOW       equ $6770
+(1)   20/       0 : =$6FF0              YELLOW          equ $6FF0
+(1)   21/       0 : =$7777              MIDGREY         equ $7777
+(1)   22/       0 : =$7FFF              WHITE           equ $7FFF
+(1)   23/       0 :                     
+(1)   24/       0 : =$100000            RAMSTART        equ $100000 ;User RAM start
+(1)   25/       0 : =$400000            PALETTES        equ $400000 ;Palette RAM start
+(1)   26/       0 : =$401FFE            BACKDROPCOLOR   equ PALETTES+(16*2*256)-2
+(1)   27/       0 :                     
+(1)   28/       0 : =$300000            REG_P1CNT       equ $300000 ;Joystick port 1
+(1)   29/       0 : =$300001            REG_DIPSW       equ $300001 ;Dipswitches/Watchdog
+(1)   30/       0 : =$320000            REG_SOUND       equ $320000 ;In/Out Z80
+(1)   31/       0 : =$320001            REG_STATUS_A    equ $320001
+(1)   32/       0 : =$340000            REG_P2CNT       equ $340000 ;Joystick port 2
+(1)   33/       0 : =$380000            REG_STATUS_B    equ $380000
+(1)   34/       0 : =$380001            REG_POUTPUT     equ $380001 ;Joypad port outputs 	 
+(1)   35/       0 : =$380021            REG_SLOT        equ $380021 ;Slot selection
+(1)   36/       0 :                     
+(1)   37/       0 : =$3A0001            REG_DISPENABL   equ $3A0001 ;Video output ON
+(1)   38/       0 : =$3A0011            REG_DISPDSABL   equ $3A0011 ;Video output OFF
+(1)   39/       0 : =$3A0013            REG_SWPROM      equ $3A0013 ;Use ROM vector table
+(1)   40/       0 : =$3A0005            REG_CRDUNLOCK1  equ $3A0005 ;Allow /WE to pass through to memory card when low
+(1)   41/       0 : =$3A0015            REG_CRDLOCK1    equ $3A0015 ;Don't allow /WE to pass through to memory card
+(1)   42/       0 : =$3A0007            REG_CRDLOCK2    equ $3A0007 ;Don't allow /WE to pass through to memory card
+(1)   43/       0 : =$3A0017            REG_CRDUNLOCK2  equ $3A0017 ;Allow /WE to pass through to memory card when high
+(1)   44/       0 : =$3A0009            REG_CRDREGSEL 	equ $3A0009
+(1)   45/       0 : =$3A0019            REG_CRDNORMAL   equ $3A0019
+(1)   46/       0 : =$3A000B            REG_BRDFIX      equ $3A000B ;Use board fix tileset
+(1)   47/       0 : =$3A001B            REG_CRTFIX      equ $3A001B ;Use ROM fix tileset
+(1)   48/       0 : =$3A000D            REG_SRAMLOCK    equ $3A000D ;Write-protect SRAM
+(1)   49/       0 : =$3A001D            REG_SRAMUNLOCK  equ $3A001D ;Write-unprotect SRAM
+(1)   50/       0 : =$3A000F            REG_PALBANK1    equ $3A000F ;Use palette bank 1
+(1)   51/       0 : =$3A001F            REG_PALBANK0    equ $3A001F ;Use palette bank 0 (default)
+(1)   52/       0 :                     
+(1)   53/       0 : =$3C0000            VRAM_ADDR       equ $3C0000
+(1)   54/       0 : =$3C0002            VRAM_RW         equ $3C0002
+(1)   55/       0 : =$3C0004            VRAM_MOD        equ $3C0004
+ AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 2 - 10/12/2016 21:12:09
+
+
+(1)   56/       0 : =$3C0006            REG_LSPCMODE    equ $3C0006
+(1)   57/       0 : =$3C0008            REG_TIMERHIGH   equ $3C0008
+(1)   58/       0 : =$3C000A            REG_TIMERLOW    equ $3C000A
+(1)   59/       0 : =$3C000C            REG_IRQACK      equ $3C000C
+(1)   60/       0 : =$3C000E            REG_TIMERSTOP   equ $3C000E
+(1)   61/       0 :                     
+(1)   62/       0 :                     ; BIOS calls
+(1)   63/       0 : =$C00438            BIOSF_SYSTEM_INT1   equ $C00438
+(1)   64/       0 : =$C00444            BIOSF_SYSTEM_RETURN equ $C00444
+(1)   65/       0 : =$C0044A            BIOSF_SYSTEM_IO     equ $C0044A ;Sets RAM values from I/O ports
+(1)   66/       0 : =$C00450            BIOSF_CREDIT_CHECK  equ $C00450
+(1)   67/       0 : =$C00456            BIOSF_CREDIT_DOWN   equ $C00456
+(1)   68/       0 : =$C0045C            BIOSF_READ_CALENDAR equ $C0045C ;Set calendar addresses (10FDD2+), MVS only
+(1)   69/       0 : =$C00468            BIOSF_CARD          equ $C00468 ;Perform memory card operations
+(1)   70/       0 : =$C0046E            BIOSF_CARD_ERROR    equ $C0046E ;In case a memory card error occurred, prompt user for action
+(1)   71/       0 : =$C00470            BIOSF_VIDEOEN       equ $C00470 ;Enable/disable video layers, CD only
+(1)   72/       0 : =$C00474            BIOSF_HOWTOPLAY     equ $C00474 ;Show how-to-play presentation, MVS only
+(1)   73/       0 : =$C004C2            BIOSF_FIX_CLEAR     equ $C004C2 ;Clear fix layer
+(1)   74/       0 : =$C004C8            BIOSF_LSP_1ST       equ $C004C8 ;Clear sprites
+(1)   75/       0 : =$C004CE            BIOSF_MESS_OUT      equ $C004CE
+(1)   76/       0 : =$C00546            BIOSF_UPLOAD        equ $C00546 ;Upload data to DRAM, CD only 
+(1)   77/       0 : =$C0056A            BIOSF_CDDACMD       equ $C0056A ;Issue CDDA command, CD only
+(1)   78/       0 :                     
+(1)   79/       0 :                     ;DMA related:
+(1)   80/       0 : =$FF0064            REG_DMACPYSRC   equ $FF0064 ;longword: Copy source address ?
+(1)   81/       0 : =$FF0064            REG_DMAFILDEST  equ $FF0064 ;longword: Fill destination address ?
+(1)   82/       0 : =$FF0068            REG_DMACPYDEST  equ $FF0068 ;longword: Copy destination address ?
+(1)   83/       0 : =$FF006C            REG_DMAFILVAL   equ $FF006C ;word: Fill value (word) ?
+(1)   84/       0 : =$FF0070            REG_DMASIZE     equ $FF0070 ;longword?: Size (in 16 bit words)
+(1)   85/       0 : =$FF0060            REG_DMASTART    equ $FF0060 ;byte: Start transfer ($40 ?)
+(1)   86/       0 :                     
+(1)   87/       0 : =$FF0111            REG_DISBLSPR    equ $FF0111 ;byte: 0/1 disable sprites
+(1)   88/       0 : =$FF0115            REG_DISBLFIX    equ $FF0115 ;byte: 0/1 disable fix layer
+(1)   89/       0 : =$FF0119            REG_ENVIDEO     equ $FF0119 ;byte: 0/1 enable video output
+(1)   90/       0 : =$FF011C            REG_CDCONFIG    equ $FF011C ;word: jumper and lid switch input
+(1)   91/       0 :                     
+(1)   92/       0 : =$FF0121            REG_UPMAPSPR    equ $FF0121 ;bytes (0 or 1)
+(1)   93/       0 : =$FF0123            REG_UPMAPPCM    equ $FF0123
+(1)   94/       0 : =$FF0127            REG_UPMAPZ80    equ $FF0127
+(1)   95/       0 : =$FF0129            REG_UPMAPFIX    equ $FF0129
+(1)   96/       0 : =$FF0141            REG_UPUNMAPSPR  equ $FF0141
+(1)   97/       0 : =$FF0143            REG_UPUNMAPPCM  equ $FF0143
+(1)   98/       0 : =$FF0147            REG_UPUNMAPZ80  equ $FF0147
+(1)   99/       0 : =$FF0149            REG_UPUNMAPFIX  equ $FF0149
+(1)  100/       0 : =$FF016F            REG_DISBLIRQ    equ $FF016F
+(1)  101/       0 : =$FF0183            REG_ENZ80       equ $FF0183
+(1)  102/       0 :                     
+(1)  103/       0 : =$FF0188            REG_CDDALEFTL   equ $FF0188 ;CD audio levels
+(1)  104/       0 : =$FF018A            REG_CDDARIGHTL  equ $FF018A
+(1)  105/       0 :                     
+(1)  106/       0 : =$10FD80            BIOS_SYSTEM_MODE  equ $10FD80 ;Game/system mode (bit 7)
+(1)  107/       0 : =$10FD82            BIOS_MVS_FLAG     equ $10FD82
+(1)  108/       0 : =$10FD83            BIOS_COUNTRY_CODE equ $10FD83
+(1)  109/       0 : =$10FD84            BIOS_GAME_DIP     equ $10FD84 ;start of soft DIPs settings (up to $10FD93)
+(1)  110/       0 :                     
+(1)  111/       0 :                     ; Set by BIOSF_SYSTEM_IO
+(1)  112/       0 : =$10FD94            BIOS_P1STATUS   equ $10FD94
+(1)  113/       0 : =$10FD95            BIOS_P1PREVIOUS equ $10FD95 ;previous joystick 1 state
+(1)  114/       0 : =$10FD96            BIOS_P1CURRENT  equ $10FD96 ;joystick 1 state
+(1)  115/       0 : =$10FD97            BIOS_P1CHANGE   equ $10FD97 ;joystick 1 state change
+ AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 3 - 10/12/2016 21:12:09
+
+
+(1)  116/       0 : =$10FD98            BIOS_P1REPEAT   equ $10FD98 ;joystick 1 repeat
+(1)  117/       0 : =$10FD99            BIOS_P1TIMER    equ $10FD99
+(1)  118/       0 :                     
+(1)  119/       0 : =$10FD9A            BIOS_P2STATUS   equ $10FD9A
+(1)  120/       0 : =$10FD9B            BIOS_P2PREVIOUS equ $10FD9B ;previous joystick 2 state
+(1)  121/       0 : =$10FD9C            BIOS_P2CURRENT  equ $10FD9C ;joystick 2 state
+(1)  122/       0 : =$10FD9D            BIOS_P2CHANGE   equ $10FD9D ;joystick 2 state change
+(1)  123/       0 : =$10FD9E            BIOS_P2REPEAT   equ $10FD9E ;joystick 2 repeat
+(1)  124/       0 : =$10FD99            BIOS_P2TIMER    equ $10FD99
+(1)  125/       0 :                     
+(1)  126/       0 :                     ;button definitions
+(1)  127/       0 : =$0                 CNT_UP	        equ 0
+(1)  128/       0 : =$1                 CNT_DN	        equ 1
+(1)  129/       0 : =$2                 CNT_LE	        equ 2
+(1)  130/       0 : =$3                 CNT_RI	        equ 3
+(1)  131/       0 : =$4                 CNT_A	        equ 4
+(1)  132/       0 : =$5                 CNT_B	        equ 5
+(1)  133/       0 : =$6                 CNT_C	        equ 6
+(1)  134/       0 : =$7                 CNT_D	        equ 7
+(1)  135/       0 :                     
+(1)  136/       0 : =$10FDAC            BIOS_STATCURNT    equ $10FDAC ;joystick 1/2 start/select
+(1)  137/       0 : =$10FDAD            BIOS_STATCHANGE   equ $10FDAD ;previous joystick 1/2 start/select
+(1)  138/       0 : =$10FDAE            BIOS_USER_REQUEST equ $10FDAE
+(1)  139/       0 : =$10FDAF            BIOS_USER_MODE    equ $10FDAF
+(1)  140/       0 : =$10FDB4            BIOS_START_FLAG   equ $10FDB4
+(1)  141/       0 : =$10FDBE            BIOS_MESS_POINT   equ $10FDBE
+(1)  142/       0 : =$10FDC2            BIOS_MESS_BUSY    equ $10FDC2
+(1)  143/       0 :                     
+(1)  144/       0 :                     ; Memory card related:
+(1)  145/       0 : =$10FDC4            BIOS_CRDF       equ $10FDC4 ;byte: function to perform when calling BIOSF_CRDACCESS, see below table
+(1)  146/       0 : =$10FDC6            BIOS_CRDRESULT  equ $10FDC6 ;byte: 00 on success, else 80+ and encodes the error, see below table
+(1)  147/       0 : =$10FDC8            BIOS_CRDPTR     equ $10FDC8 ;longword: pointer to read from/write to
+(1)  148/       0 : =$10FDCC            BIOS_CRDSIZE    equ $10FDCC ;word: how much data to read/write from/to card
+(1)  149/       0 : =$10FDCE            BIOS_CRDNGH     equ $10FDCE ;word: usually game NGH. Unique identifier for the game that 'owns' the save file
+(1)  150/       0 : =$10FDD0            BIOS_CRDFILE    equ $10FDD0 ;word: each NGH has up to 16 save 'files' associated with
+(1)  151/       0 :                     
+(1)  152/       0 :                     ; Calendar, only on MVS (in BCD)
+(1)  153/       0 : =$10FDD2            BIOS_YEAR       equ $10FDD2 ;last 2 digits of year
+(1)  154/       0 : =$10FDD3            BIOS_MONTH      equ $10FDD3
+(1)  155/       0 : =$10FDD4            BIOS_DAY        equ $10FDD4
+(1)  156/       0 : =$10FDD5            BIOS_WEEKDAY    equ $10FDD5 ;Sunday = 00, Monday = 01 ... Saturday = 06
+(1)  157/       0 : =$10FDD6            BIOS_HOUR       equ $10FDD6 ;24 hour time
+(1)  158/       0 : =$10FDD7            BIOS_MINUTE     equ $10FDD7
+(1)  159/       0 : =$10FDD8            BIOS_SECOND     equ $10FDD8
+(1)  160/       0 :                     
+(1)  161/       0 : =$10FDDA            BIOS_SELECT_TIMER equ $10FDDA ;Byte: game start countdown
+(1)  162/       0 : =$10FE80            BIOS_DEVMODE      equ $10FE80 ;Byte: non-zero for developer mode
+(1)  163/       0 :                     
+(1)  164/       0 :                     ; Upload to DRAM
+(1)  165/       0 : =$10FEF4            BIOS_UPDEST     equ $10FEF4 ;longword: destination address (!)
+(1)  166/       0 : =$10FEF8            BIOS_UPSRC      equ $10FEF8 ;longword: source address
+(1)  167/       0 : =$10FEFC            BIOS_UPSIZE     equ $10FEFC ;longword: size
+(1)  168/       0 : =$10FEDA            BIOS_UPZONE     equ $10FEDA ;byte: zone (0=PRG, 1=FIX, 2=SPR, 3=Z80, 4=PCM, 5=PAT)
+(1)  169/       0 : =$10FEDB            BIOS_UPBANK     equ $10FEDB ;byte: bank
+(1)  170/       0 :                     
+(1)  171/       0 : =$D00046            SOUND_STOP      equ $D00046 ;byte
+       6/       0 :                         INCLUDE "header.asm"
+(1)    1/       0 :                         org $0
+(1)    2/       0 : 0010 F300               dc.l $10F300		; Initial SP
+(1)    3/       4 : 00C0 0402               dc.l $C00402		; Initial PC
+ AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 4 - 10/12/2016 21:12:09
+
+
+(1)    4/       8 : 00C0 0408 00C0 040E     dc.l $C00408, $C0040E, $C00414, ErrDivZero	; Bus error, Address error, Illegal Instruction, Divide by 0
+                    00C0 0414 0000 0248 
+(1)    5/      18 : 0000 0248 0000 0248     dc.l ErrCHK, ErrTRAPV, $C0041A, $C00420		; CHK, TRAPV ,Privilege Violation, Trace
+                    00C0 041A 00C0 0420 
+(1)    6/      28 : 0000 0248 0000 0248     dc.l ErrLineA, ErrLineF, $C00426, $C00426	; Emu, Emu, Reserved, Reserved
+                    00C0 0426 00C0 0426 
+(1)    7/      38 : 00C0 0426 00C0 042C     dc.l $C00426, $C0042C, $C00426, $C00426		; Reserved, Reserved, Reserved, Reserved
+                    00C0 0426 00C0 0426 
+(1)    8/      48 : 00C0 0426 00C0 0426     dc.l $C00426, $C00426, $C00426, $C00426		; Reserved, Reserved, Reserved, Reserved
+                    00C0 0426 00C0 0426 
+(1)    9/      58 : 00C0 0426 00C0 0426     dc.l $C00426, $C00426, $C00432, VBI			; Reserved, Reserved, Spurious Interrupt, Vertical blank
+                    00C0 0432 0000 0214 
+(1)   10/      68 : 0000 0200 0000 020A     dc.l TMRI, IRQ3, ErrG, ErrG					; Timer interrupt, Cold boot interrupt
+                    0000 0246 0000 0246 
+(1)   11/      78 : 0000 0246 0000 0246     dc.l ErrG, ErrG, ErrG, ErrG					; Auto, Auto, Trap 0, Trap1...
+                    0000 0246 0000 0246 
+(1)   12/      88 : 0000 0246 0000 0246     dc.l ErrG, ErrG, ErrG, ErrG
+                    0000 0246 0000 0246 
+(1)   13/      98 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   14/      A8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   15/      B8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   16/      C8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   17/      D8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   18/      E8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
+                    FFFF FFFF FFFF FFFF 
+(1)   19/      F8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF
+(1)   20/     100 :                     
+(1)   21/     100 :                         org $0100
+(1)   22/     100 : 4E45 4F2D 4745 4F00     dc.b "NEO-GEO", $00
+(1)   23/     108 :                     
+(1)   24/     108 : 0002                    dc.w $0002			; NGH (Baseball Stars Professional)
+(1)   25/     10A : 0002 0000               dc.l $00020000      ; P1 size (128KiB)
+(1)   26/     10E : 0010 F000               dc.l $0010F000		; Pointer to debug DIPs (none)
+(1)   27/     112 : 0001                    dc.w $0001			; No save (0 is not allowed ?)
+(1)   28/     114 :                     
+(1)   29/     114 :                         org $0114
+(1)   30/     114 : 0200                    dc.w $0200			; No eye-catcher, sprite bank number ignored
+(1)   31/     116 : 0000 0200               dc.l SoftDIPs		; JP
+(1)   32/     11A : 0000 0200               dc.l SoftDIPs		; US
+(1)   33/     11E : 0000 0200               dc.l SoftDIPs		; EU
+(1)   34/     122 :                     
+(1)   35/     122 :                         org $0122
+(1)   36/     122 : 4EF8 025A           	jmp User
+(1)   37/     126 : 4EF8 027C           	jmp _rt				; Player_start
+(1)   38/     12A : 4EF8 027C           	jmp _rt				; Demo_end
+(1)   39/     12E : 4EF8 027C           	jmp _rt				; Todo: Coin_sound
+(1)   40/     132 :                     
+(1)   41/     182 :                         org $0182
+(1)   42/     182 : 0000 0186           	dc.l SCode			; Pointer to security code
+(1)   43/     186 :                     
+(1)   44/     186 :                     SCode:
+(1)   45/     186 : 7600 4A6D 0A14 6600 	dc.l $76004A6D, $0A146600, $003C206D, $0A043E2D
+                    003C 206D 0A04 3E2D 
+(1)   46/     196 : 0A08 13C0 0030 0001 	dc.l $0A0813C0, $00300001, $32100C01, $00FF671A
+                    3210 0C01 00FF 671A 
+ AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 5 - 10/12/2016 21:12:09
+
+
+(1)   47/     1A6 : 3028 0002 B02D 0ACE 	dc.l $30280002, $B02D0ACE, $66103028, $0004B02D
+                    6610 3028 0004 B02D 
+(1)   48/     1B6 : 0ACF 6606 B22D 0AD0 	dc.l $0ACF6606, $B22D0AD0, $67085088, $51CFFFD4
+                    6708 5088 51CF FFD4 
+(1)   49/     1C6 : 3607 4E75 206D 0A04 	dc.l $36074E75, $206D0A04, $3E2D0A08, $3210E049
+                    3E2D 0A08 3210 E049 
+(1)   50/     1D6 : 0C01 00FF 671A 3010 	dc.l $0C0100FF, $671A3010, $B02D0ACE, $66123028
+                    B02D 0ACE 6612 3028 
+(1)   51/     1E6 : 0002 E048 B02D 0ACF 	dc.l $0002E048, $B02D0ACF, $6606B22D, $0AD06708
+                    6606 B22D 0AD0 6708 
+(1)   52/     1F6 : 5888 51CF FFD8 3607 	dc.l $588851CF, $FFD83607
+(1)   53/     1FE : 4E75                	dc.w $4E75
+(1)   54/     200 :                     
+(1)   55/     200 :                     SoftDIPs:
+(1)   56/     200 : 4D56 5320 4163 6964     dc.b "MVS AcidTest 0.1"		; Title
+                    5465 7374 2030 2E31 
+(1)   57/     210 : FFFF FFFF               dc.w $FFFF, $FFFF			; Special options
+(1)   58/     214 : FFFF                	dc.b $FF, $FF
+(1)   59/     216 : 0200                    dc.b $02					; Simple options
+(1)   60/     218 : 0000 0000 0000 0000 	dc.b $00,$00,$00,$00,$00,$00,$00,$00,$00
+                    0000                
+(1)   61/     222 : 416E 206F 7074 696F 	dc.b "An option   "
+                    6E20 2020           
+(1)   62/     22E : 5965 6168 2020 2020 	dc.b "Yeah        "
+                    2020 2020           
+(1)   63/     23A : 4E6F 7065 2020 2020 	dc.b "Nope        "
+                    2020 2020           
+(1)   64/     246 :                     
+(1)   65/     246 :                     ErrG:
+(1)   66/     246 :                     	; Todo !
+(1)   67/     246 : 4E73                	rte
+(1)   68/     248 :                     	
+(1)   69/     248 :                     ErrDivZero:
+(1)   70/     248 :                     ErrCHK:
+(1)   71/     248 :                     ErrTRAPV:
+(1)   72/     248 :                     ErrLineA:
+(1)   73/     248 :                     ErrLineF:
+(1)   74/     248 :                     	; Todo !
+(1)   75/     248 : 4E75                    rts
+(1)   76/     24A :                     
+(1)   77/     24A :                     jt_user:
+(1)   78/     24A : 0000 027E           	dc.l   Init			; Start-up init
+(1)   79/     24E : 0000 027C           	dc.l   _rt			; Eye-catcher
+(1)   80/     252 : 0000 0258           	dc.l   Start        ; Game/demo
+(1)   81/     256 : 0000 027C           	dc.l   _rt			; Title display
+(1)   82/     25A :                     
+(1)   83/     25A :                     User:
+(1)   84/     25A : 13C0 0030 0001          move.b  d0,REG_DIPSW
+(1)   85/     260 : 1039 0010 FDAE          move.b  BIOS_USER_REQUEST,d0
+(1)   86/     266 : 0200 0003               andi.b  #3,d0
+(1)   87/     26A : E548                    lsl.w   #2,d0
+(1)   88/     26C : 41F8 024A               lea     jt_user,a0
+(1)   89/     270 : 2070 0000               movea.l (a0,d0),a0
+(1)   90/     274 : 4E90                    jsr     (a0)
+(1)   91/     276 : 4EF9 00C0 0444          jmp     BIOSF_SYSTEM_RETURN
+(1)   92/     27C :                     
+(1)   93/     27C :                     _rt:
+(1)   94/     27C : 4E75                	rts
+(1)   95/     27E :                     
+(1)   96/     27E :                     
+ AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 6 - 10/12/2016 21:12:09
+
+
+(1)   97/     27E :                     Init:
+(1)   98/     27E : 33FC 0539 0010 F000 	move.w  #1337,$10F000		; Backup RAM init
+(1)   99/     286 : 4E75                	rts
+(1)  100/     288 :                     
+(1)  101/     288 :                     
+       7/     288 :                         INCLUDE "ram.asm"
+(1)    1/  100000 :                     	org RAMSTART
+(1)    2/  100000 :                     
+(1)    3/  100000 :                     FLAGS:			ds.b 1
+(1)    4/  100002 :                     FRAMES:			ds.b 1
+(1)    5/  100004 :                     
+(1)    6/  100004 :                     CURSOR:			ds.b 1
+(1)    7/  100006 :                     PREV_CURSOR:	ds.b 1
+(1)    8/  100008 :                     
+       8/  100008 :                     
+       9/     200 :                         org $200
+      10/     200 :                     TMRI:
+      11/     200 : 33FC 0002 003C 000C     move.w  #2,REG_IRQACK
+      12/     208 : 4E73                    rte
+      13/     20A :                     
+      14/     20A :                     IRQ3:
+      15/     20A : 33FC 0001 003C 000C     move.w  #1,REG_IRQACK
+      16/     212 : 4E73                    rte
+      17/     214 :                         
+      18/     214 :                     VBI:
+      19/     214 : 0839 0007 0010 FD80     btst    #7,BIOS_SYSTEM_MODE
+      20/     21C : 6606                    bne     .getvbi
+      21/     21E : 4EF9 00C0 0438          jmp     BIOSF_SYSTEM_INT1
+      22/     224 :                     .getvbi:
+      23/     224 : 33FC 0004 003C 000C     move.w  #4,REG_IRQACK
+      24/     22C : 46FC 2000               move.w  #$2000,sr
+      25/     230 : 48E7 FFFE               movem.l d0-d7/a0-a6,-(a7)
+      26/     234 : 13C0 0030 0001          move.b  d0,REG_DIPSW
+      27/     23A : 4EB9 00C0 044A          jsr     BIOSF_SYSTEM_IO
+      28/     240 : 4EB9 00C0 04CE          jsr     BIOSF_MESS_OUT
+      29/     246 : 5239 0010 0002          addq.b  #1,FRAMES
+      30/     24C : 50F9 0010 0000          st.b    FLAGS
+      31/     252 : 4CDF 7FFF               movem.l (a7)+,d0-d7/a0-a6
+      32/     256 : 4E73                    rte
+      33/     258 :                     
+      34/     258 :                     
+      35/     258 :                     Start:
+      36/     258 : 4FF9 0010 F300          lea     $10F300,a7
+      37/     25E : 33FC 4000 003C 0006     move.w  #$4000,REG_LSPCMODE
+      38/     266 :                         
+      39/     266 : 13FC 0002 0010 FDAE     move.b  #2,BIOS_USER_REQUEST	; Game in progress
+      40/     26E :                     
+      41/     26E : 2E3C 0000 0797          move.l  #($F300/32)-1,d7
+      42/     274 : 41F9 0010 0000          lea     RAMSTART,a0
+      43/     27A : 7000                    moveq.l #0,d0
+      44/     27C :                     .clram:
+      45/     27C : 13C0 0030 0001          move.b  d0,REG_DIPSW
+      46/     282 : 20C0                    move.l  d0,(a0)+		; 12
+      47/     284 : 20C0                    move.l  d0,(a0)+
+      48/     286 : 20C0                    move.l  d0,(a0)+
+      49/     288 : 20C0                    move.l  d0,(a0)+
+      50/     28A : 20C0                    move.l  d0,(a0)+
+      51/     28C : 20C0                    move.l  d0,(a0)+
+      52/     28E : 20C0                    move.l  d0,(a0)+
+      53/     290 : 20C0                    move.l  d0,(a0)+
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 7 - 10/12/2016 21:12:09
+
+
+      54/     292 : 51CF FFE8               dbra    d7,.clram
+      55/     296 :                     
+      56/     296 : 33FC 0007 003C 000C     move.w  #7,REG_IRQACK
+      57/     29E : 46FC 2000               move.w  #$2000,sr
+      58/     2A2 :                     
+      59/     2A2 : 33FC 8000 0040 0000     move.w  #$8000,PALETTES
+      60/     2AA : 33FC 8000 0040 1FFE     move.w  #$8000,BACKDROPCOLOR
+      61/     2B2 :                     
+      62/     2B2 : 33FC 7FFF 0040 0002     move.w  #$7FFF,PALETTES+2
+      63/     2BA : 33FC 8000 0040 0004     move.w  #$8000,PALETTES+4
+      64/     2C2 :                     
+      65/     2C2 : 4EB9 00C0 04C2          jsr     BIOSF_FIX_CLEAR
+      66/     2C8 : 4EB9 00C0 04C8          jsr     BIOSF_LSP_1ST
+      67/     2CE :                         
+      68/     2CE :                         ; Display menu
+      69/     2CE : 08F9 0000 0010 FDC2 	bset.b  #0,BIOS_MESS_BUSY
+      70/     2D6 : 2079 0010 FDBE      	movea.l BIOS_MESS_POINT,a0  ; Get current pointer in buffer
+      71/     2DC : 20FC 0000 047E      	move.l  #MESS_MENU,(a0)+
+      72/     2E2 : 23C8 0010 FDBE      	move.l  a0,BIOS_MESS_POINT  ; Update pointer
+      73/     2E8 : 08B9 0000 0010 FDC2 	bclr.b  #0,BIOS_MESS_BUSY   ; Ready to go
+      74/     2F0 :                     
+      75/     2F0 : 4239 0010 0000          clr.b   FLAGS
+      76/     2F6 : 13FC 00FF 0010 0006     move.b  #$FF,PREV_CURSOR	; Force refresh
+      77/     2FE :                     
+      78/     2FE :                     MainLoop:
+      79/     2FE : 4A39 0010 0000          tst.b   FLAGS
+      80/     304 : 67F8                    beq     MainLoop
+      81/     306 : 4239 0010 0000          clr.b   FLAGS
+      82/     30C :                     
+      83/     30C : 1039 0010 FD97          move.b  BIOS_P1CHANGE,d0
+      84/     312 :                     
+      85/     312 : 1239 0010 0004      	move.b  CURSOR,d1
+      86/     318 :                     
+      87/     318 : 0800 0000               btst    #CNT_UP,d0
+      88/     31C : 6706                    beq     .noup
+      89/     31E : 4A01                    tst.b   d1
+      90/     320 : 6702                    beq     .noup
+      91/     322 : 5301                    subq.b  #1,d1
+      92/     324 :                     .noup:
+      93/     324 :                     
+      94/     324 : 0800 0001               btst    #CNT_DN,d0
+      95/     328 : 6708                    beq     .nodn
+      96/     32A : B23C 0004               cmp.b   #5-1,d1
+      97/     32E : 6702                    beq     .nodn
+      98/     330 : 5201                    addq.b  #1,d1
+      99/     332 :                     .nodn:
+     100/     332 :                     
+     101/     332 : B239 0010 0006      	cmp.b   PREV_CURSOR,d1
+     102/     338 : 6750                	beq     .norefresh
+     103/     33A : 13C1 0010 0004      	move.b  d1,CURSOR
+     104/     340 : 1039 0010 0006      	move.b  PREV_CURSOR,d0
+     105/     346 : 0240 00FF           	andi.w  #$00FF,d0
+     106/     34A : 0640 7188           	addi.w  #$7188,d0
+     107/     34E : 33C0 003C 0000      	move.w  d0,VRAM_ADDR
+     108/     354 : 4E71                	nop
+     109/     356 : 4E71                	nop
+     110/     358 : 33FC 00FF 003C 0002 	move.w  #$00FF,VRAM_RW		; Clear old cursor
+     111/     360 : 1039 0010 0004      	move.b  CURSOR,d0
+     112/     366 : 0240 00FF           	andi.w  #$00FF,d0
+     113/     36A : 0640 7188           	addi.w  #$7188,d0
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 8 - 10/12/2016 21:12:09
+
+
+     114/     36E : 33C0 003C 0000      	move.w  d0,VRAM_ADDR
+     115/     374 : 4E71                	nop
+     116/     376 : 4E71                	nop
+     117/     378 : 33FC 0011 003C 0002 	move.w  #$0011,VRAM_RW		; Draw new cursor
+     118/     380 : 13F9 0010 0004 0010 	move.b  CURSOR,PREV_CURSOR
+                    0006                
+     119/     38A :                     .norefresh:
+     120/     38A :                         
+     121/     38A : 6000 FF72               bra     MainLoop
+     122/     38E :                         
+     123/     38E :                     
+     124/     38E :                     
+     125/     38E : 0800 0003               btst    #CNT_RI,d0
+     126/     392 : 672A                    beq     .noright		; Right: R/W to REG_LSPCMODE or $3E0000 (range check)
+     127/     394 : 0800 0004               btst    #CNT_A,d0
+     128/     398 : 6712                    beq     .nora			; Right + A : REG_LSPCMODE
+     129/     39A : 13FC 0055 003C 0006     move.b  #$55,$3C0006
+     130/     3A2 : 1039 003C 0006          move.b  $3C0006,d0
+     131/     3A8 : 6000 FF54               bra     MainLoop
+     132/     3AC :                     .nora:
+     133/     3AC : 13FC 0055 003E 0000     move.b  #$55,$3E0000	; Only right: $3E0000
+     134/     3B4 : 1039 003E 0000          move.b  $3E0000,d0
+     135/     3BA : 6000 FF42               bra     MainLoop
+     136/     3BE :                     .noright:
+     137/     3BE :                     
+     138/     3BE : 0800 0002               btst    #2,d0
+     139/     3C2 : 6730                    beq     .noleft		; Left
+     140/     3C4 : 0800 0004               btst    #4,d0
+     141/     3C8 : 670A                    beq     .nola		; Left + A: Read from REG_DIPSW = DIPRD0
+     142/     3CA : 1039 0030 0001          move.b  $300001,d0
+     143/     3D0 : 6000 FF2C               bra     MainLoop
+     144/     3D4 :                     .nola:
+     145/     3D4 : 13FC 0055 0040 0000     move.b  #$55,$400000	; Only left: R/W to PALETTES
+     146/     3DC : 13FC 00AA 0040 0001     move.b  #$AA,$400001
+     147/     3E4 : 1039 0040 0000          move.b  $400000,d0
+     148/     3EA : 1039 0040 0001          move.b  $400001,d0
+     149/     3F0 : 6000 FF0C               bra     MainLoop
+     150/     3F4 :                     
+     151/     3F4 :                     .noleft:
+     152/     3F4 :                     
+     153/     3F4 : 0800 0004               btst    #4,d0
+     154/     3F8 : 6720                    beq     .noa		; A: R/W to PORT
+     155/     3FA : 13FC 0055 0020 0000     move.b  #$55,$200000
+     156/     402 : 13FC 00AA 0020 0001     move.b  #$AA,$200001
+     157/     40A : 1039 0020 0000          move.b  $200000,d0
+     158/     410 : 1039 0020 0001          move.b  $200001,d0
+     159/     416 : 6000 FEE6               bra     MainLoop
+     160/     41A :                     .noa:
+     161/     41A : 0800 0005               btst    #5,d0
+     162/     41E : 6712                    beq     .nob		; B: R/W to REG_SOUND (= internal to C1)
+     163/     420 : 13FC 0055 0032 0000     move.b  #$55,$320000
+     164/     428 : 1039 0032 0000          move.b  $320000,d0
+     165/     42E : 6000 FECE               bra     MainLoop
+     166/     432 :                     .nob:
+     167/     432 : 0800 0006               btst    #6,d0
+     168/     436 : 6712                    beq     .noc		; C: R/W to REG_STATUS_A = nDIPRD1
+     169/     438 : 13FC 0055 0032 0001     move.b  #$55,$320001
+     170/     440 : 1039 0032 0001          move.b  $320001,d0
+     171/     446 : 6000 FEB6               bra     MainLoop
+     172/     44A :                     .noc:
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 9 - 10/12/2016 21:12:09
+
+
+     173/     44A : 0800 0007               btst    #7,d0
+     174/     44E : 6712                    beq     .nod		; D: Write to REG_POUTPUT = nBITWD0
+     175/     450 : 13FC 0055 0038 0001     move.b  #$55,$380001
+     176/     458 : 1039 0038 0001          move.b  $380001,d0
+     177/     45E : 6000 FE9E               bra     MainLoop
+     178/     462 :                     .nod:
+     179/     462 : 0800 0001               btst    #1,d0
+     180/     466 : 6712                    beq     .nodown		; Down: Write to REG_NOSHADOW = nBITW1
+     181/     468 : 13FC 0055 003A 0001     move.b  #$55,$3A0001
+     182/     470 : 1039 003A 0001          move.b  $3A0001,d0
+     183/     476 : 6000 FE86               bra     MainLoop
+     184/     47A :                     .nodown:
+     185/     47A :                     
+     186/     47A : 6000 FE82               bra     MainLoop
+     187/     47E :                     
+     188/     47E :                         INCLUDE "mess.asm"
+(1)    1/     47E :                     MESS_MENU:
+(1)    2/     47E : 0001                	dc.w $0001
+(1)    3/     480 : 00FF                	dc.w $00FF
+(1)    4/     482 :                     
+(1)    5/     482 : 0003                	dc.w $0003
+(1)    6/     484 : 7144                	dc.w $7144
+(1)    7/     486 :                     
+(1)    8/     486 : 0108                	dc.w $0108
+(1)    9/     488 : 5468 6520 4E45 4F47 	dc.b "The NEOGEO Acid Test", $FF
+                    454F 2041 6369 6420 
+                    5465 7374 FF00      
+(1)   10/     49E :                     
+(1)   11/     49E : 0003                	dc.w $0003
+(1)   12/     4A0 : 71A8                	dc.w $71A8
+(1)   13/     4A2 :                     	
+(1)   14/     4A2 : 0007                	dc.w $0007
+(1)   15/     4A4 : 312E 204D 656D 2E20 	dc.b "1. Mem. map test", $FF
+                    6D61 7020 7465 7374 
+                    FF00                
+(1)   16/     4B6 :                     	
+(1)   17/     4B6 : 0005                	dc.w $0005
+(1)   18/     4B8 : 0001                	dc.w $0001
+(1)   19/     4BA :                     	
+(1)   20/     4BA : 0007                	dc.w $0007
+(1)   21/     4BC : 322E 204C 5350 4320 	dc.b "2. LSPC test", $FF
+                    7465 7374 FF00      
+(1)   22/     4CA :                     	
+(1)   23/     4CA : 0005                	dc.w $0005
+(1)   24/     4CC : 0001                	dc.w $0001
+(1)   25/     4CE :                     	
+(1)   26/     4CE : 0007                	dc.w $0007
+(1)   27/     4D0 : 332E 2057 4149 5420 	dc.b "3. WAIT test", $FF
+                    7465 7374 FF00      
+(1)   28/     4DE :                     
+(1)   29/     4DE : 0005                	dc.w $0005
+(1)   30/     4E0 : 0001                	dc.w $0001
+(1)   31/     4E2 :                     	
+(1)   32/     4E2 : 0007                	dc.w $0007
+(1)   33/     4E4 : 342E 2043 6162 2049 	dc.b "4. Cab I/O test", $FF
+                    2F4F 2074 6573 74FF 
+(1)   34/     4F4 :                     	
+(1)   35/     4F4 : 0005                	dc.w $0005
+(1)   36/     4F6 : 0001                	dc.w $0001
+(1)   37/     4F8 :                     	
+ AS V1.42 Beta [Bld 79] - source file main.asm(mess.asm) - page 10 - 10/12/2016 21:12:09
+
+
+(1)   38/     4F8 : 0007                	dc.w $0007
+(1)   39/     4FA : 352E 205A 3830 2049 	dc.b "5. Z80 I/O test", $FF
+                    2F4F 2074 6573 74FF 
+(1)   40/     50A :                     
+(1)   41/     50A : 0000                	dc.w $0000
+(1)   42/     50C :                     
+     189/     50C :                     
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 11 - 10/12/2016 21:12:09
+
+
+  symbol table (* = unused):
+  ------------------------
+
+*ARCHITECTURE :  i386-unknown-win32 - |  BACKDROPCOLOR :             401FFE - |
+*BIGENDIAN :                      0 - | *BIOSF_CARD :                C00468 - |
+*BIOSF_CARD_ERROR :          C0046E - | *BIOSF_CDDACMD :             C0056A - |
+*BIOSF_CREDIT_CHECK :        C00450 - | *BIOSF_CREDIT_DOWN :         C00456 - |
+ BIOSF_FIX_CLEAR :           C004C2 - | *BIOSF_HOWTOPLAY :           C00474 - |
+ BIOSF_LSP_1ST :             C004C8 - |  BIOSF_MESS_OUT :            C004CE - |
+*BIOSF_READ_CALENDAR :       C0045C - |  BIOSF_SYSTEM_INT1 :         C00438 - |
+ BIOSF_SYSTEM_IO :           C0044A - |  BIOSF_SYSTEM_RETURN :       C00444 - |
+*BIOSF_UPLOAD :              C00546 - | *BIOSF_VIDEOEN :             C00470 - |
+*BIOS_COUNTRY_CODE :         10FD83 - | *BIOS_CRDF :                 10FDC4 - |
+*BIOS_CRDFILE :              10FDD0 - | *BIOS_CRDNGH :               10FDCE - |
+*BIOS_CRDPTR :               10FDC8 - | *BIOS_CRDRESULT :            10FDC6 - |
+*BIOS_CRDSIZE :              10FDCC - | *BIOS_DAY :                  10FDD4 - |
+*BIOS_DEVMODE :              10FE80 - | *BIOS_GAME_DIP :             10FD84 - |
+*BIOS_HOUR :                 10FDD6 - |  BIOS_MESS_BUSY :            10FDC2 - |
+ BIOS_MESS_POINT :           10FDBE - | *BIOS_MINUTE :               10FDD7 - |
+*BIOS_MONTH :                10FDD3 - | *BIOS_MVS_FLAG :             10FD82 - |
+ BIOS_P1CHANGE :             10FD97 - | *BIOS_P1CURRENT :            10FD96 - |
+*BIOS_P1PREVIOUS :           10FD95 - | *BIOS_P1REPEAT :             10FD98 - |
+*BIOS_P1STATUS :             10FD94 - | *BIOS_P1TIMER :              10FD99 - |
+*BIOS_P2CHANGE :             10FD9D - | *BIOS_P2CURRENT :            10FD9C - |
+*BIOS_P2PREVIOUS :           10FD9B - | *BIOS_P2REPEAT :             10FD9E - |
+*BIOS_P2STATUS :             10FD9A - | *BIOS_P2TIMER :              10FD99 - |
+*BIOS_SECOND :               10FDD8 - | *BIOS_SELECT_TIMER :         10FDDA - |
+*BIOS_START_FLAG :           10FDB4 - | *BIOS_STATCHANGE :           10FDAD - |
+*BIOS_STATCURNT :            10FDAC - |  BIOS_SYSTEM_MODE :          10FD80 - |
+*BIOS_UPBANK :               10FEDB - | *BIOS_UPDEST :               10FEF4 - |
+*BIOS_UPSIZE :               10FEFC - | *BIOS_UPSRC :                10FEF8 - |
+*BIOS_UPZONE :               10FEDA - | *BIOS_USER_MODE :            10FDAF - |
+ BIOS_USER_REQUEST :         10FDAE - | *BIOS_WEEKDAY :              10FDD5 - |
+*BIOS_YEAR :                 10FDD2 - | *BLACK :                       8000 - |
+*BLUE :                        100F - | *BRANCHEXT :                      0 - |
+*CASESENSITIVE :                  0 - |  CNT_A :                          4 - |
+*CNT_B :                          5 - | *CNT_C :                          6 - |
+*CNT_D :                          7 - |  CNT_DN :                         1 - |
+*CNT_LE :                         2 - |  CNT_RI :                         3 - |
+ CNT_UP :                         0 - | *CONSTPI :        3.141592653589793 - |
+ CURSOR :                    100004 C | *CYAN :                        30FF - |
+*DATE :                  10/12/2016 - |  ERRCHK :                       248 C |
+ ERRDIVZERO :                   248 C |  ERRG :                         246 C |
+ ERRLINEA :                     248 C |  ERRLINEF :                     248 C |
+ ERRTRAPV :                     248 C | *FALSE :                          0 - |
+*FIXMAP :                      7000 - |  FLAGS :                     100000 C |
+ FRAMES :                    100002 C | *FULLPMMU :                       1 - |
+*GREEN :                       20F0 - | *HAS64 :                          1 - |
+*HASDSP :                         0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - | *INEXTMODE :                      0 - |
+ INIT :                         27E C | *INLWORDMODE :                    0 - |
+*INMAXMODE :                      0 - | *INSRCMODE :                      0 - |
+*INSUPMODE :                      1 - |  IRQ3 :                         20A C |
+ JT_USER :                      24A C | *LISTON :                         1 - |
+*MACEXP :                         1 - | *MAGENTA :                     5F0F - |
+ MAINLOOP :                     2FE C |  MAINLOOP.NOA :                 41A C |
+ MAINLOOP.NOB :                 432 C |  MAINLOOP.NOC :                 44A C |
+ MAINLOOP.NOD :                 462 C |  MAINLOOP.NODN :                332 C |
+ MAINLOOP.NODOWN :              47A C |  MAINLOOP.NOLA :                3D4 C |
+ MAINLOOP.NOLEFT :              3F4 C |  MAINLOOP.NORA :                3AC C |
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 12 - 10/12/2016 21:12:09
+
+
+ MAINLOOP.NOREFRESH :           38A C |  MAINLOOP.NORIGHT :             3BE C |
+ MAINLOOP.NOUP :                324 C |  MESS_MENU :                    47E C |
+*MIDBLUE :                     1007 - | *MIDCYAN :                     3077 - |
+*MIDGREEN :                    2070 - | *MIDGREY :                     7777 - |
+*MIDMAGENTA :                  5707 - | *MIDRED :                      4700 - |
+*MIDYELLOW :                   6770 - | *MOMCPU :                     68000 - |
+*MOMCPUNAME :                 68000 - | *NESTMAX :                      100 - |
+*ORANGE :                      6F70 - | *PACKING :                        0 - |
+*PADDING :                        1 - |  PALETTES :                  400000 - |
+ PREV_CURSOR :               100006 C |  RAMSTART :                  100000 - |
+*RED :                         4F00 - | *REG_BRDFIX :                3A000B - |
+*REG_CDCONFIG :              FF011C - | *REG_CDDALEFTL :             FF0188 - |
+*REG_CDDARIGHTL :            FF018A - | *REG_CRDLOCK1 :              3A0015 - |
+*REG_CRDLOCK2 :              3A0007 - | *REG_CRDNORMAL :             3A0019 - |
+*REG_CRDREGSEL :             3A0009 - | *REG_CRDUNLOCK1 :            3A0005 - |
+*REG_CRDUNLOCK2 :            3A0017 - | *REG_CRTFIX :                3A001B - |
+ REG_DIPSW :                 300001 - | *REG_DISBLFIX :              FF0115 - |
+*REG_DISBLIRQ :              FF016F - | *REG_DISBLSPR :              FF0111 - |
+*REG_DISPDSABL :             3A0011 - | *REG_DISPENABL :             3A0001 - |
+*REG_DMACPYDEST :            FF0068 - | *REG_DMACPYSRC :             FF0064 - |
+*REG_DMAFILDEST :            FF0064 - | *REG_DMAFILVAL :             FF006C - |
+*REG_DMASIZE :               FF0070 - | *REG_DMASTART :              FF0060 - |
+*REG_ENVIDEO :               FF0119 - | *REG_ENZ80 :                 FF0183 - |
+ REG_IRQACK :                3C000C - |  REG_LSPCMODE :              3C0006 - |
+*REG_P1CNT :                 300000 - | *REG_P2CNT :                 340000 - |
+*REG_PALBANK0 :              3A001F - | *REG_PALBANK1 :              3A000F - |
+*REG_POUTPUT :               380001 - | *REG_SLOT :                  380021 - |
+*REG_SOUND :                 320000 - | *REG_SRAMLOCK :              3A000D - |
+*REG_SRAMUNLOCK :            3A001D - | *REG_STATUS_A :              320001 - |
+*REG_STATUS_B :              380000 - | *REG_SWPROM :                3A0013 - |
+*REG_TIMERHIGH :             3C0008 - | *REG_TIMERLOW :              3C000A - |
+*REG_TIMERSTOP :             3C000E - | *REG_UPMAPFIX :              FF0129 - |
+*REG_UPMAPPCM :              FF0123 - | *REG_UPMAPSPR :              FF0121 - |
+*REG_UPMAPZ80 :              FF0127 - | *REG_UPUNMAPFIX :            FF0149 - |
+*REG_UPUNMAPPCM :            FF0143 - | *REG_UPUNMAPSPR :            FF0141 - |
+*REG_UPUNMAPZ80 :            FF0147 - | *RELAXED :                        0 - |
+*SCB1 :                           0 - | *SCB2 :                        8000 - |
+*SCB3 :                        8200 - | *SCB4 :                        8400 - |
+ SCODE :                        186 C |  SOFTDIPS :                     200 C |
+*SOUND_STOP :                D00046 - |  START :                        258 C |
+ START.CLRAM :                  27C C | *TIME :                    21:12:09 - |
+ TMRI :                         200 C | *TRUE :                           1 - |
+ USER :                         25A C |  VBI :                          214 C |
+ VBI.GETVBI :                   224 C | *VERSION :                     142F - |
+ VRAM_ADDR :                 3C0000 - | *VRAM_MOD :                  3C0004 - |
+ VRAM_RW :                   3C0002 - | *WHITE :                       7FFF - |
+*YELLOW :                      6FF0 - |  _RT :                          27C C |
+
+    208 symbols
+    149 unused symbols
+
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 13 - 10/12/2016 21:12:09
+
+
+  codepages:
+  ----------
+
+STANDARD (0 changed characters)
+
+
+0.04 seconds assembly time
+
+    511 lines source file
+      2 passes
+      0 errors
+      0 warnings
