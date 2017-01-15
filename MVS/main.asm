@@ -129,6 +129,13 @@ MainLoop:
 	and.b   d1,d0				; Test for rising edge
 	beq     .no_input
 	move.w  LAG_LINES,d0		; Quick, latch !
+	clr.b   LAG_SIGN
+	cmp.w   #7656,d0            ; 116 / 2 / 2 * 264 = 7656
+	bls     .positive
+	neg.w   d0
+	addi.w  #15312,d0    		; 116 / 2 * 264 = 15312
+	st.b    LAG_SIGN			; Negative
+.positive:
 	; LAG_LINES = number of lines
 	; 1 line = 384px = 384/6000000s = 64us
 	; LAG_LATCH = ms value = LAG_LINES * 64 / 1000
@@ -136,16 +143,33 @@ MainLoop:
     move.w  d0,d1
 	lsl.l   #6,d1				; *64
 	divu.w  #1000,d1			; /1000
-	clr.b   LAG_SIGN
-	cmp.w   #7656,d1            ; 116 / 2 / 2 * 264 = 7656
-	bls     .positive
-	st.b    LAG_SIGN			; Negative
-.positive:
+
 	move.w  d1,LAG_LATCH
 .no_input:
 
 	cmp.w   #$1F0,d4
 	bne     .trig_loop			; Exit loop at end of active display
+
+
+	; Display lag value
+    move.w  #-$20,VRAM_MOD
+    nop
+    move.w  LAG_LATCH,d0
+    moveq.l #4,d7
+    move.w  #$7295,VRAM_ADDR
+.disp_loop:
+	moveq.l #0,d1
+	move.b  d0,d1
+	andi.b  #$F,d1
+	cmp.b   #9,d1
+	bls     .num
+	addq.b  #7,d1
+.num:
+	addi.w  #$30,d1
+    move.w  d1,VRAM_RW
+    lsr.w   #4,d0
+	subq.b  #1,d7
+    bne     .disp_loop
 
 
 	move.b  REG_STATUS_A,d0		; :)

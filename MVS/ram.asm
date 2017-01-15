@@ -4,6 +4,7 @@ FLAGS:			ds.b 1
 FRAMES:			ds.b 1
 LAG_LINES:		ds.w 1
 LAG_LATCH:		ds.w 1
+LAG_SIGN:		ds.b 1
 
 COUNT:			ds.b 1
 DIRECTION:		ds.b 1
