@@ -34,9 +34,12 @@
 
     org $0122
 	jmp User
+    org $0128
 	jmp _rt				; Player_start
+    org $012E
 	jmp _rt				; Demo_end
-	jmp _rt				; Todo: Coin_sound
+    org $0134
+	jmp _rt				; Coin_sound
 
     org $0182
 	dc.l SCode			; Pointer to security code
@@ -53,14 +56,11 @@ SCode:
 	dc.w $4E75
 
 SoftDIPs:
-    dc.b "MVS AcidTest 0.1"		; Title
+    dc.b "NEOGEO LAG TEST "		; Title
     dc.w $FFFF, $FFFF			; Special options
 	dc.b $FF, $FF
-    dc.b $02					; Simple options
+    dc.b $00					; Simple options
 	dc.b $00,$00,$00,$00,$00,$00,$00,$00,$00
-	dc.b "An option   "
-	dc.b "Yeah        "
-	dc.b "Nope        "
 
 ErrG:
 	; Todo !

@@ -1,3 +1,6 @@
+;NeoGeo lagtest v1
+;furrtek CC BY-NC 2017
+
     cpu 68000
 
     supmode on
@@ -6,44 +9,21 @@
     INCLUDE "header.asm"
     INCLUDE "ram.asm"
 
-    org $200
-TMRI:
-    move.w  #2,REG_IRQACK
-    rte
+    ORG $300
+	INCLUDE "irq.asm"
 
-IRQ3:
-    move.w  #1,REG_IRQACK
-    rte
-    
-VBI:
-    btst    #7,BIOS_SYSTEM_MODE
-    bne     .getvbi
-    jmp     BIOSF_SYSTEM_INT1
-.getvbi:
-    move.w  #4,REG_IRQACK
-    move.w  #$2000,sr
-    movem.l d0-d7/a0-a6,-(a7)
-    move.b  d0,REG_DIPSW
-    jsr     BIOSF_SYSTEM_IO
-    jsr     BIOSF_MESS_OUT
-    addq.b  #1,FRAMES
-    st.b    FLAGS
-    movem.l (a7)+,d0-d7/a0-a6
-    rte
-
-
+	ORG $1000
 Start:
     lea     $10F300,a7
-    move.w  #$4000,REG_LSPCMODE
+    move.w  #$0000,REG_LSPCMODE
     
     move.b  #2,BIOS_USER_REQUEST	; Game in progress
 
-    move.l  #($F300/32)-1,d7
+    move.l  #($F300/32)-1,d7		; Clear work RAM
     lea     RAMSTART,a0
     moveq.l #0,d0
-.clram:
-    move.b  d0,REG_DIPSW
-    move.l  d0,(a0)+		; 12
+.clear_ram:
+    move.b  d0,REG_DIPSW			; Watchdoge
     move.l  d0,(a0)+
     move.l  d0,(a0)+
     move.l  d0,(a0)+
@@ -51,138 +31,241 @@ Start:
     move.l  d0,(a0)+
     move.l  d0,(a0)+
     move.l  d0,(a0)+
-    dbra    d7,.clram
+    move.l  d0,(a0)+
+    dbra    d7,.clear_ram
 
     move.w  #7,REG_IRQACK
-    move.w  #$2000,sr
+    move.w  #$2000,sr 				; Allow IRQs
 
-    move.w  #$8000,PALETTES
-    move.w  #$8000,BACKDROPCOLOR
-
-    move.w  #$7FFF,PALETTES+2
-    move.w  #$8000,PALETTES+4
+    move.w  #BLACK,PALETTES			; Palette 0 color 0
+    move.w  #WHITE,PALETTES+2		; Palette 0 color 1: Text
+    move.w  #BLACK,PALETTES+4		; Palette 0 color 2
+    move.w  #$0BBB,PALETTES+8		; Palette 0 color 4: Box
+    move.w  #BLACK,PALETTES+20		; Palette 1 color 2
+    move.w  #RED,PALETTES+24		; Palette 1 color 4: Line
+    move.w  #BLACK,BACKDROPCOLOR
 
     jsr     BIOSF_FIX_CLEAR
     jsr     BIOSF_LSP_1ST
+
+    ; Display box
+    lea     box_data,a0
+	move.w  #$716C,d1
+	move.w  #$0300,d2
+    jsr     automap
     
     ; Display menu
-	bset.b  #0,BIOS_MESS_BUSY
-	movea.l BIOS_MESS_POINT,a0  ; Get current pointer in buffer
+	bset.b  #0,BIOS_MESS_BUSY       ; Busy
+	movea.l BIOS_MESS_POINT,a0  	; Get current pointer
 	move.l  #MESS_MENU,(a0)+
-	move.l  a0,BIOS_MESS_POINT  ; Update pointer
-	bclr.b  #0,BIOS_MESS_BUSY   ; Ready to go
+	move.l  a0,BIOS_MESS_POINT  	; Update pointer
+	bclr.b  #0,BIOS_MESS_BUSY   	; Ready to go
 
     clr.b   FLAGS
-    move.b  #1,PREV_CURSOR		; Force refresh
+
+	move.w  #$00D0,REG_LSPCMODE 	; Timer frame reload, zero reload, and IRQ enable
+	move.w  #$0000,REG_TIMERHIGH
+	move.w  #$017F,REG_TIMERLOW	 	; 384-1 pixels
+    move.w  #7,REG_IRQACK			; Clear IRQs
 
 MainLoop:
-    tst.b   FLAGS				; Wait for VBI
+    tst.b   FLAGS					; Wait for VBI
     beq     MainLoop
     clr.b   FLAGS
 
-    move.b  BIOS_P1CHANGE,d0
+	; Update screen as quickly as possible
+	move.w  #$20,VRAM_MOD
 
-	move.b  CURSOR,d1
+	; Flash
+    move.w  #$0BBB,d0
+	cmp.b   #56,COUNT
+	beq     .flash
+	cmp.b   #58,COUNT
+	beq     .flash
+	cmp.b   #60,COUNT
+	bne     .no_flash
+.flash:
+    move.w  #$0F00,d0
+.no_flash:
+    move.w  d0,PALETTES+8
 
-    btst    #CNT_UP,d0
-    beq     .noup
-    tst.b   d1
-    beq     .noup
-    subq.b  #1,d1
-.noup:
-
-    btst    #CNT_DN,d0
-    beq     .nodn
-    cmp.b   #5-1,d1
-    beq     .nodn
-    addq.b  #1,d1
-.nodn:
-
-	cmp.b   PREV_CURSOR,d1
-	beq     .norefresh
-	move.b  d1,CURSOR
-	clr.w   d0
-	move.b  PREV_CURSOR,d0		; Clear old cursor
-	addi.w  #$7188,d0
-	move.w  d0,VRAM_ADDR
+	; Draw bar
+	move.w  #$718D,VRAM_ADDR
 	nop
 	nop
-	move.w  #$00FF,VRAM_RW
-	clr.w   d0
-	move.b  CURSOR,d0			; Draw new cursor
-	addi.w  #$7188,d0
-	move.w  d0,VRAM_ADDR
+    moveq.l #15,d7
+	jsr     vramcopy
+
+	move.w  #$718E,VRAM_ADDR
 	nop
 	nop
-	move.w  #$0011,VRAM_RW		; >
-	move.b  CURSOR,PREV_CURSOR
-.norefresh:
+    moveq.l #15,d7
+	jsr     vramcopy
+
+
+
+	; Trigger loop
+.trig_loop:
+	move.w  REG_LSPCMODE,d4
+	lsr.w   #7,d4          		; Raster #
+	; Get reference timing
+	cmp.b   #58,COUNT
+	bne     .no_ref
+	; Display just hit the drawing of the line ?
+	cmp.w   #$170,d4			; Approx.
+	bne     .no_ref
+    clr.w   LAG_LINES			; Right here, right now
+.no_ref:
+
+    move.b  REG_P1CNT,d0
+    move.b  REG_P2CNT,d1
+    move.b  PREV_INPUT,d2		; MacroAS bug workaround
+    and.b   d1,d0				; Mix
+    not.b   d0
+    andi.b  #$F0,d0				; Keep A/B/C/D only
+	move.b  d0,d1
+	eor.b   d2,d0				; Difference
+	move.b  d1,PREV_INPUT
+	and.b   d1,d0				; Test for rising edge
+	beq     .no_input
+	move.w  LAG_LINES,d0		; Quick, latch !
+	; LAG_LINES = number of lines
+	; 1 line = 384px = 384/6000000s = 64us
+	; LAG_LATCH = ms value = LAG_LINES * 64 / 1000
+	moveq.l #0,d1
+    move.w  d0,d1
+	lsl.l   #6,d1				; *64
+	divu.w  #1000,d1			; /1000
+	clr.b   LAG_SIGN
+	cmp.w   #7656,d1            ; 116 / 2 / 2 * 264 = 7656
+	bls     .positive
+	st.b    LAG_SIGN			; Negative
+.positive:
+	move.w  d1,LAG_LATCH
+.no_input:
+
+	cmp.w   #$1F0,d4
+	bne     .trig_loop			; Exit loop at end of active display
+
+
+	move.b  REG_STATUS_A,d0		; :)
+	andi.b  #3,d0
+	cmp.b   #3,d0
+    beq     .no_ee
+    move.w  #$1,VRAM_MOD
+    move.w  #YELLOW,PALETTES+2
+    move.w  #MAGENTA,PALETTES+4
+    move.w  #MAGENTA,BACKDROPCOLOR
+    move.w  #BLACK,PALETTES+8
+    move.w  #$7284,VRAM_ADDR
+    move.w  #MAGENTA,PALETTES+20
+    move.w  #GREEN,PALETTES+24
+    nop
+    move.w  #$146,VRAM_RW
+    nop
+    nop
+    nop
+    move.w  #$246,VRAM_RW
+.no_ee:
+
+
+    ; Do housekeeping now
+    ;jsr     BIOSF_SYSTEM_IO	Do not want
+    jsr     BIOSF_MESS_OUT
+
+	; Animate
+	tst.b   DIRECTION
+	beq     .dir_up
+	subq.b  #2,COUNT
+    tst.b   COUNT
+    bne     .dir_end
+    clr.b  	DIRECTION
+    bra     .dir_end
+.dir_up:
+	addq.b  #2,COUNT
+    cmp.b   #116,COUNT
+    bne     .dir_end
+    st.b    DIRECTION
+.dir_end:
+
+    ; 0~116, 116~0, ping-pong line animation
+    ; 15-tiles bar
+    ; 0: 80000000...
+    ; 1: 70000000...
+    ; 2: 60000000...
+    ; 3: 50000000...
+    ; 4: 40000000...
+    ; 5: 3B000000...
+    ; 6: 2A000000...
+    ; 7: 19000000...
+    ; 8: 08000000...
+    ; First empty tiles = N / 8
+    ; Left tile # = 8 - (N & 7)
+    ; Right tile # = (N & 7) > 4 ? 16 - (N & 7) : 0
+	; Tile # offset = $300
+
+	; Render in RAM
+	lea     VRAM_BUFFER,a0
+	move.b  #1,d1
+	move.b  COUNT,d0
+	move.b  d0,d2
+	lsr.b   #3,d0				; N / 8
+	beq     .no_padding
+	add.b   d0,d1
+.pad:
+	move.w  #$0300,(a0)+		; Empty tile
+	subq.b  #1,d0
+	bne     .pad
+
+.no_padding:
+	andi.b  #7,d2
+	move.b  d2,d0				; N & 7
+	neg.b   d0
+	addi.b  #8,d0
+	andi.w  #$000F,d0
+	ori.w   #$0300,d0
+	move.w  d0,(a0)+			; Left tile
+
+	move.b  d2,d0
+	cmp.b   #4,d0
+	bls     .no_right
+	addq.b  #1,d1
+	neg.b   d0
+	addi.b  #16,d0
+	andi.w  #$001F,d0
+	ori.w   #$0300,d0
+	move.w  d0,(a0)+			; Right tile
+
+.no_right:
+.fill:
+	cmp.b   #15,d1
+	beq     .no_fill
+	move.w  #$0300,(a0)+
+	addq.b  #1,d1
+	bne     .fill
+.no_fill:
+
+
+	bra     MainLoop
+
+
+MESS_MENU:
+	dc.w $0001
+	dc.w $00FF
+
+	dc.w $0003
+	dc.w $7184
+
+	dc.w $0108
+	dc.b "NEOGEO  LAG TEST", $FF
+
+	dc.w $0000
+
+box_data:
+    dc.w 17, 4
+    dc.w 12,13,13,13,13,13,13,13,20,13,13,13,13,13,13,13,14
+    dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
+    dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
+    dc.w 17,18,18,18,18,18,18,18,21,18,18,18,18,18,18,18,19
     
-    bra     MainLoop
-    
-
-
-    btst    #CNT_RI,d0
-    beq     .noright		; Right: R/W to REG_LSPCMODE or $3E0000 (range check)
-    btst    #CNT_A,d0
-    beq     .nora			; Right + A : REG_LSPCMODE
-    move.b  #$55,$3C0006
-    move.b  $3C0006,d0
-    bra     MainLoop
-.nora:
-    move.b  #$55,$3E0000	; Only right: $3E0000
-    move.b  $3E0000,d0
-    bra     MainLoop
-.noright:
-
-    btst    #2,d0
-    beq     .noleft		; Left
-    btst    #4,d0
-    beq     .nola		; Left + A: Read from REG_DIPSW = DIPRD0
-    move.b  $300001,d0
-    bra     MainLoop
-.nola:
-    move.b  #$55,$400000	; Only left: R/W to PALETTES
-    move.b  #$AA,$400001
-    move.b  $400000,d0
-    move.b  $400001,d0
-    bra     MainLoop
-
-.noleft:
-
-    btst    #4,d0
-    beq     .noa		; A: R/W to PORT
-    move.b  #$55,$200000
-    move.b  #$AA,$200001
-    move.b  $200000,d0
-    move.b  $200001,d0
-    bra     MainLoop
-.noa:
-    btst    #5,d0
-    beq     .nob		; B: R/W to REG_SOUND (= internal to C1)
-    move.b  #$55,$320000
-    move.b  $320000,d0
-    bra     MainLoop
-.nob:
-    btst    #6,d0
-    beq     .noc		; C: R/W to REG_STATUS_A = nDIPRD1
-    move.b  #$55,$320001
-    move.b  $320001,d0
-    bra     MainLoop
-.noc:
-    btst    #7,d0
-    beq     .nod		; D: Write to REG_POUTPUT = nBITWD0
-    move.b  #$55,$380001
-    move.b  $380001,d0
-    bra     MainLoop
-.nod:
-    btst    #1,d0
-    beq     .nodown		; Down: Write to REG_NOSHADOW = nBITW1
-    move.b  #$55,$3A0001
-    move.b  $3A0001,d0
-    bra     MainLoop
-.nodown:
-
-    bra     MainLoop
-
-    INCLUDE "mess.asm"
+    INCLUDE "video.asm"

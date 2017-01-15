@@ -10,7 +10,7 @@ MESS_MENU:
 
 	dc.w $0003
 	dc.w $71A8
-	
+
 	dc.w $0007
 	dc.b "1. Mem. map test", $FF
 	
