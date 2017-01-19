@@ -1,4 +1,4 @@
- AS V1.42 Beta [Bld 79] - source file main.asm - page 1 - 1/15/2017 7:17:30
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 1 - 1/19/2017 10:57:34
 
 
        1/       0 :                     ;NeoGeo lagtest v1
@@ -61,7 +61,7 @@
 (1)   50/       0 : =$3A000F            REG_PALBANK1    equ $3A000F ;Use palette bank 1
 (1)   51/       0 : =$3A001F            REG_PALBANK0    equ $3A001F ;Use palette bank 0 (default)
 (1)   52/       0 :                     
- AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 2 - 1/15/2017 7:17:30
+ AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 2 - 1/19/2017 10:57:34
 
 
 (1)   53/       0 : =$3C0000            VRAM_ADDR       equ $3C0000
@@ -90,107 +90,77 @@
 (1)   76/       0 : =$C00546            BIOSF_UPLOAD        equ $C00546 ;Upload data to DRAM, CD only 
 (1)   77/       0 : =$C0056A            BIOSF_CDDACMD       equ $C0056A ;Issue CDDA command, CD only
 (1)   78/       0 :                     
-(1)   79/       0 :                     ;DMA related:
-(1)   80/       0 : =$FF0064            REG_DMACPYSRC   equ $FF0064 ;longword: Copy source address ?
-(1)   81/       0 : =$FF0064            REG_DMAFILDEST  equ $FF0064 ;longword: Fill destination address ?
-(1)   82/       0 : =$FF0068            REG_DMACPYDEST  equ $FF0068 ;longword: Copy destination address ?
-(1)   83/       0 : =$FF006C            REG_DMAFILVAL   equ $FF006C ;word: Fill value (word) ?
-(1)   84/       0 : =$FF0070            REG_DMASIZE     equ $FF0070 ;longword?: Size (in 16 bit words)
-(1)   85/       0 : =$FF0060            REG_DMASTART    equ $FF0060 ;byte: Start transfer ($40 ?)
-(1)   86/       0 :                     
-(1)   87/       0 : =$FF0111            REG_DISBLSPR    equ $FF0111 ;byte: 0/1 disable sprites
-(1)   88/       0 : =$FF0115            REG_DISBLFIX    equ $FF0115 ;byte: 0/1 disable fix layer
-(1)   89/       0 : =$FF0119            REG_ENVIDEO     equ $FF0119 ;byte: 0/1 enable video output
-(1)   90/       0 : =$FF011C            REG_CDCONFIG    equ $FF011C ;word: jumper and lid switch input
+(1)   79/       0 : =$10FD80            BIOS_SYSTEM_MODE  equ $10FD80 ;Game/system mode (bit 7)
+(1)   80/       0 : =$10FD82            BIOS_MVS_FLAG     equ $10FD82
+(1)   81/       0 : =$10FD83            BIOS_COUNTRY_CODE equ $10FD83
+(1)   82/       0 : =$10FD84            BIOS_GAME_DIP     equ $10FD84 ;start of soft DIPs settings (up to $10FD93)
+(1)   83/       0 :                     
+(1)   84/       0 :                     ; Set by BIOSF_SYSTEM_IO
+(1)   85/       0 : =$10FD94            BIOS_P1STATUS   equ $10FD94
+(1)   86/       0 : =$10FD95            BIOS_P1PREVIOUS equ $10FD95 ;previous joystick 1 state
+(1)   87/       0 : =$10FD96            BIOS_P1CURRENT  equ $10FD96 ;joystick 1 state
+(1)   88/       0 : =$10FD97            BIOS_P1CHANGE   equ $10FD97 ;joystick 1 state change
+(1)   89/       0 : =$10FD98            BIOS_P1REPEAT   equ $10FD98 ;joystick 1 repeat
+(1)   90/       0 : =$10FD99            BIOS_P1TIMER    equ $10FD99
 (1)   91/       0 :                     
-(1)   92/       0 : =$FF0121            REG_UPMAPSPR    equ $FF0121 ;bytes (0 or 1)
-(1)   93/       0 : =$FF0123            REG_UPMAPPCM    equ $FF0123
-(1)   94/       0 : =$FF0127            REG_UPMAPZ80    equ $FF0127
-(1)   95/       0 : =$FF0129            REG_UPMAPFIX    equ $FF0129
-(1)   96/       0 : =$FF0141            REG_UPUNMAPSPR  equ $FF0141
-(1)   97/       0 : =$FF0143            REG_UPUNMAPPCM  equ $FF0143
-(1)   98/       0 : =$FF0147            REG_UPUNMAPZ80  equ $FF0147
-(1)   99/       0 : =$FF0149            REG_UPUNMAPFIX  equ $FF0149
-(1)  100/       0 : =$FF016F            REG_DISBLIRQ    equ $FF016F
-(1)  101/       0 : =$FF0183            REG_ENZ80       equ $FF0183
-(1)  102/       0 :                     
-(1)  103/       0 : =$FF0188            REG_CDDALEFTL   equ $FF0188 ;CD audio levels
-(1)  104/       0 : =$FF018A            REG_CDDARIGHTL  equ $FF018A
-(1)  105/       0 :                     
-(1)  106/       0 : =$10FD80            BIOS_SYSTEM_MODE  equ $10FD80 ;Game/system mode (bit 7)
-(1)  107/       0 : =$10FD82            BIOS_MVS_FLAG     equ $10FD82
-(1)  108/       0 : =$10FD83            BIOS_COUNTRY_CODE equ $10FD83
-(1)  109/       0 : =$10FD84            BIOS_GAME_DIP     equ $10FD84 ;start of soft DIPs settings (up to $10FD93)
-(1)  110/       0 :                     
-(1)  111/       0 :                     ; Set by BIOSF_SYSTEM_IO
-(1)  112/       0 : =$10FD94            BIOS_P1STATUS   equ $10FD94
- AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 3 - 1/15/2017 7:17:30
+(1)   92/       0 : =$10FD9A            BIOS_P2STATUS   equ $10FD9A
+(1)   93/       0 : =$10FD9B            BIOS_P2PREVIOUS equ $10FD9B ;previous joystick 2 state
+(1)   94/       0 : =$10FD9C            BIOS_P2CURRENT  equ $10FD9C ;joystick 2 state
+(1)   95/       0 : =$10FD9D            BIOS_P2CHANGE   equ $10FD9D ;joystick 2 state change
+(1)   96/       0 : =$10FD9E            BIOS_P2REPEAT   equ $10FD9E ;joystick 2 repeat
+(1)   97/       0 : =$10FD99            BIOS_P2TIMER    equ $10FD99
+(1)   98/       0 :                     
+(1)   99/       0 :                     ;button definitions
+(1)  100/       0 : =$0                 CNT_UP	        equ 0
+(1)  101/       0 : =$1                 CNT_DN	        equ 1
+(1)  102/       0 : =$2                 CNT_LE	        equ 2
+(1)  103/       0 : =$3                 CNT_RI	        equ 3
+(1)  104/       0 : =$4                 CNT_A	        equ 4
+(1)  105/       0 : =$5                 CNT_B	        equ 5
+(1)  106/       0 : =$6                 CNT_C	        equ 6
+(1)  107/       0 : =$7                 CNT_D	        equ 7
+(1)  108/       0 :                     
+(1)  109/       0 : =$10FDAC            BIOS_STATCURNT    equ $10FDAC ;joystick 1/2 start/select
+(1)  110/       0 : =$10FDAD            BIOS_STATCHANGE   equ $10FDAD ;previous joystick 1/2 start/select
+(1)  111/       0 : =$10FDAE            BIOS_USER_REQUEST equ $10FDAE
+(1)  112/       0 : =$10FDAF            BIOS_USER_MODE    equ $10FDAF
+ AS V1.42 Beta [Bld 79] - source file main.asm(regdefs.asm) - page 3 - 1/19/2017 10:57:34
 
 
-(1)  113/       0 : =$10FD95            BIOS_P1PREVIOUS equ $10FD95 ;previous joystick 1 state
-(1)  114/       0 : =$10FD96            BIOS_P1CURRENT  equ $10FD96 ;joystick 1 state
-(1)  115/       0 : =$10FD97            BIOS_P1CHANGE   equ $10FD97 ;joystick 1 state change
-(1)  116/       0 : =$10FD98            BIOS_P1REPEAT   equ $10FD98 ;joystick 1 repeat
-(1)  117/       0 : =$10FD99            BIOS_P1TIMER    equ $10FD99
-(1)  118/       0 :                     
-(1)  119/       0 : =$10FD9A            BIOS_P2STATUS   equ $10FD9A
-(1)  120/       0 : =$10FD9B            BIOS_P2PREVIOUS equ $10FD9B ;previous joystick 2 state
-(1)  121/       0 : =$10FD9C            BIOS_P2CURRENT  equ $10FD9C ;joystick 2 state
-(1)  122/       0 : =$10FD9D            BIOS_P2CHANGE   equ $10FD9D ;joystick 2 state change
-(1)  123/       0 : =$10FD9E            BIOS_P2REPEAT   equ $10FD9E ;joystick 2 repeat
-(1)  124/       0 : =$10FD99            BIOS_P2TIMER    equ $10FD99
-(1)  125/       0 :                     
-(1)  126/       0 :                     ;button definitions
-(1)  127/       0 : =$0                 CNT_UP	        equ 0
-(1)  128/       0 : =$1                 CNT_DN	        equ 1
-(1)  129/       0 : =$2                 CNT_LE	        equ 2
-(1)  130/       0 : =$3                 CNT_RI	        equ 3
-(1)  131/       0 : =$4                 CNT_A	        equ 4
-(1)  132/       0 : =$5                 CNT_B	        equ 5
-(1)  133/       0 : =$6                 CNT_C	        equ 6
-(1)  134/       0 : =$7                 CNT_D	        equ 7
-(1)  135/       0 :                     
-(1)  136/       0 : =$10FDAC            BIOS_STATCURNT    equ $10FDAC ;joystick 1/2 start/select
-(1)  137/       0 : =$10FDAD            BIOS_STATCHANGE   equ $10FDAD ;previous joystick 1/2 start/select
-(1)  138/       0 : =$10FDAE            BIOS_USER_REQUEST equ $10FDAE
-(1)  139/       0 : =$10FDAF            BIOS_USER_MODE    equ $10FDAF
-(1)  140/       0 : =$10FDB4            BIOS_START_FLAG   equ $10FDB4
-(1)  141/       0 : =$10FDBE            BIOS_MESS_POINT   equ $10FDBE
-(1)  142/       0 : =$10FDC2            BIOS_MESS_BUSY    equ $10FDC2
+(1)  113/       0 : =$10FDB4            BIOS_START_FLAG   equ $10FDB4
+(1)  114/       0 : =$10FDBE            BIOS_MESS_POINT   equ $10FDBE
+(1)  115/       0 : =$10FDC2            BIOS_MESS_BUSY    equ $10FDC2
+(1)  116/       0 :                     
+(1)  117/       0 :                     ; Memory card related:
+(1)  118/       0 : =$10FDC4            BIOS_CRDF       equ $10FDC4 ;byte: function to perform when calling BIOSF_CRDACCESS, see below table
+(1)  119/       0 : =$10FDC6            BIOS_CRDRESULT  equ $10FDC6 ;byte: 00 on success, else 80+ and encodes the error, see below table
+(1)  120/       0 : =$10FDC8            BIOS_CRDPTR     equ $10FDC8 ;longword: pointer to read from/write to
+(1)  121/       0 : =$10FDCC            BIOS_CRDSIZE    equ $10FDCC ;word: how much data to read/write from/to card
+(1)  122/       0 : =$10FDCE            BIOS_CRDNGH     equ $10FDCE ;word: usually game NGH. Unique identifier for the game that 'owns' the save file
+(1)  123/       0 : =$10FDD0            BIOS_CRDFILE    equ $10FDD0 ;word: each NGH has up to 16 save 'files' associated with
+(1)  124/       0 :                     
+(1)  125/       0 :                     ; Calendar, only on MVS (in BCD)
+(1)  126/       0 : =$10FDD2            BIOS_YEAR       equ $10FDD2 ;last 2 digits of year
+(1)  127/       0 : =$10FDD3            BIOS_MONTH      equ $10FDD3
+(1)  128/       0 : =$10FDD4            BIOS_DAY        equ $10FDD4
+(1)  129/       0 : =$10FDD5            BIOS_WEEKDAY    equ $10FDD5 ;Sunday = 00, Monday = 01 ... Saturday = 06
+(1)  130/       0 : =$10FDD6            BIOS_HOUR       equ $10FDD6 ;24 hour time
+(1)  131/       0 : =$10FDD7            BIOS_MINUTE     equ $10FDD7
+(1)  132/       0 : =$10FDD8            BIOS_SECOND     equ $10FDD8
+(1)  133/       0 :                     
+(1)  134/       0 : =$10FDDA            BIOS_SELECT_TIMER equ $10FDDA ;Byte: game start countdown
+(1)  135/       0 : =$10FE80            BIOS_DEVMODE      equ $10FE80 ;Byte: non-zero for developer mode
+(1)  136/       0 :                     
+(1)  137/       0 :                     ; Upload to DRAM
+(1)  138/       0 : =$10FEF4            BIOS_UPDEST     equ $10FEF4 ;longword: destination address (!)
+(1)  139/       0 : =$10FEF8            BIOS_UPSRC      equ $10FEF8 ;longword: source address
+(1)  140/       0 : =$10FEFC            BIOS_UPSIZE     equ $10FEFC ;longword: size
+(1)  141/       0 : =$10FEDA            BIOS_UPZONE     equ $10FEDA ;byte: zone (0=PRG, 1=FIX, 2=SPR, 3=Z80, 4=PCM, 5=PAT)
+(1)  142/       0 : =$10FEDB            BIOS_UPBANK     equ $10FEDB ;byte: bank
 (1)  143/       0 :                     
-(1)  144/       0 :                     ; Memory card related:
-(1)  145/       0 : =$10FDC4            BIOS_CRDF       equ $10FDC4 ;byte: function to perform when calling BIOSF_CRDACCESS, see below table
-(1)  146/       0 : =$10FDC6            BIOS_CRDRESULT  equ $10FDC6 ;byte: 00 on success, else 80+ and encodes the error, see below table
-(1)  147/       0 : =$10FDC8            BIOS_CRDPTR     equ $10FDC8 ;longword: pointer to read from/write to
-(1)  148/       0 : =$10FDCC            BIOS_CRDSIZE    equ $10FDCC ;word: how much data to read/write from/to card
-(1)  149/       0 : =$10FDCE            BIOS_CRDNGH     equ $10FDCE ;word: usually game NGH. Unique identifier for the game that 'owns' the save file
-(1)  150/       0 : =$10FDD0            BIOS_CRDFILE    equ $10FDD0 ;word: each NGH has up to 16 save 'files' associated with
-(1)  151/       0 :                     
-(1)  152/       0 :                     ; Calendar, only on MVS (in BCD)
-(1)  153/       0 : =$10FDD2            BIOS_YEAR       equ $10FDD2 ;last 2 digits of year
-(1)  154/       0 : =$10FDD3            BIOS_MONTH      equ $10FDD3
-(1)  155/       0 : =$10FDD4            BIOS_DAY        equ $10FDD4
-(1)  156/       0 : =$10FDD5            BIOS_WEEKDAY    equ $10FDD5 ;Sunday = 00, Monday = 01 ... Saturday = 06
-(1)  157/       0 : =$10FDD6            BIOS_HOUR       equ $10FDD6 ;24 hour time
-(1)  158/       0 : =$10FDD7            BIOS_MINUTE     equ $10FDD7
-(1)  159/       0 : =$10FDD8            BIOS_SECOND     equ $10FDD8
-(1)  160/       0 :                     
-(1)  161/       0 : =$10FDDA            BIOS_SELECT_TIMER equ $10FDDA ;Byte: game start countdown
-(1)  162/       0 : =$10FE80            BIOS_DEVMODE      equ $10FE80 ;Byte: non-zero for developer mode
-(1)  163/       0 :                     
-(1)  164/       0 :                     ; Upload to DRAM
-(1)  165/       0 : =$10FEF4            BIOS_UPDEST     equ $10FEF4 ;longword: destination address (!)
-(1)  166/       0 : =$10FEF8            BIOS_UPSRC      equ $10FEF8 ;longword: source address
-(1)  167/       0 : =$10FEFC            BIOS_UPSIZE     equ $10FEFC ;longword: size
-(1)  168/       0 : =$10FEDA            BIOS_UPZONE     equ $10FEDA ;byte: zone (0=PRG, 1=FIX, 2=SPR, 3=Z80, 4=PCM, 5=PAT)
-(1)  169/       0 : =$10FEDB            BIOS_UPBANK     equ $10FEDB ;byte: bank
-(1)  170/       0 :                     
-(1)  171/       0 : =$D00046            SOUND_STOP      equ $D00046 ;byte
+(1)  144/       0 : =$D00046            SOUND_STOP      equ $D00046 ;byte
        9/       0 :                         INCLUDE "header.asm"
- AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 4 - 1/15/2017 7:17:30
-
-
-(1)    1/       0 :                         org $0
+(1)    1/       0 :                         ORG $0
 (1)    2/       0 : 0010 F300               dc.l $10F300		; Initial SP
 (1)    3/       4 : 00C0 0402               dc.l $C00402		; Initial PC
 (1)    4/       8 : 00C0 0408 00C0 040E     dc.l $C00408, $C0040E, $C00414, ErrDivZero	; Bus error, Address error, Illegal Instruction, Divide by 0
@@ -217,6 +187,9 @@
                     FFFF FFFF FFFF FFFF 
 (1)   15/      B8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
                     FFFF FFFF FFFF FFFF 
+ AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 4 - 1/19/2017 10:57:34
+
+
 (1)   16/      C8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
                     FFFF FFFF FFFF FFFF 
 (1)   17/      D8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
@@ -225,34 +198,31 @@
                     FFFF FFFF FFFF FFFF 
 (1)   19/      F8 : FFFF FFFF FFFF FFFF     dc.l $FFFFFFFF,$FFFFFFFF
 (1)   20/     100 :                     
-(1)   21/     100 :                         org $0100
+(1)   21/     100 :                         ORG $0100
 (1)   22/     100 : 4E45 4F2D 4745 4F00     dc.b "NEO-GEO", $00
 (1)   23/     108 :                     
-(1)   24/     108 : 0002                    dc.w $0002			; NGH (Baseball Stars Professional)
+(1)   24/     108 : 0029                    dc.w $0029			; NGH (Legend of Success Joe, because nobody wants that)
 (1)   25/     10A : 0002 0000               dc.l $00020000      ; P1 size (128KiB)
 (1)   26/     10E : 0010 F000               dc.l $0010F000		; Pointer to debug DIPs (none)
 (1)   27/     112 : 0001                    dc.w $0001			; No save (0 is not allowed ?)
 (1)   28/     114 :                     
-(1)   29/     114 :                         org $0114
+(1)   29/     114 :                         ORG $0114
 (1)   30/     114 : 0200                    dc.w $0200			; No eye-catcher, sprite bank number ignored
 (1)   31/     116 : 0000 0200               dc.l SoftDIPs		; JP
 (1)   32/     11A : 0000 0200               dc.l SoftDIPs		; US
 (1)   33/     11E : 0000 0200               dc.l SoftDIPs		; EU
 (1)   34/     122 :                     
-(1)   35/     122 :                         org $0122
+(1)   35/     122 :                         ORG $0122
 (1)   36/     122 : 4EF8 0236           	jmp User
-(1)   37/     128 :                         org $0128
+(1)   37/     128 :                         ORG $0128
 (1)   38/     128 : 4EF8 0258           	jmp _rt				; Player_start
-(1)   39/     12E :                         org $012E
+(1)   39/     12E :                         ORG $012E
 (1)   40/     12E : 4EF8 0258           	jmp _rt				; Demo_end
-(1)   41/     134 :                         org $0134
+(1)   41/     134 :                         ORG $0134
 (1)   42/     134 : 4EF8 0258           	jmp _rt				; Coin_sound
 (1)   43/     138 :                     
-(1)   44/     182 :                         org $0182
+(1)   44/     182 :                         ORG $0182
 (1)   45/     182 : 0000 0186           	dc.l SCode			; Pointer to security code
- AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 5 - 1/15/2017 7:17:30
-
-
 (1)   46/     186 :                     
 (1)   47/     186 :                     SCode:
 (1)   48/     186 : 7600 4A6D 0A14 6600 	dc.l $76004A6D, $0A146600, $003C206D, $0A043E2D
@@ -280,63 +250,60 @@
 (1)   62/     216 : 0000                    dc.b $00					; Simple options
 (1)   63/     218 : 0000 0000 0000 0000 	dc.b $00,$00,$00,$00,$00,$00,$00,$00,$00
                     0000                
+ AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 5 - 1/19/2017 10:57:34
+
+
 (1)   64/     222 :                     
 (1)   65/     222 :                     ErrG:
-(1)   66/     222 :                     	; Todo !
-(1)   67/     222 : 4E73                	rte
-(1)   68/     224 :                     	
-(1)   69/     224 :                     ErrDivZero:
-(1)   70/     224 :                     ErrCHK:
-(1)   71/     224 :                     ErrTRAPV:
-(1)   72/     224 :                     ErrLineA:
-(1)   73/     224 :                     ErrLineF:
-(1)   74/     224 :                     	; Todo !
-(1)   75/     224 : 4E75                    rts
-(1)   76/     226 :                     
-(1)   77/     226 :                     jt_user:
-(1)   78/     226 : 0000 025A           	dc.l   Init			; Start-up init
-(1)   79/     22A : 0000 0258           	dc.l   _rt			; Eye-catcher
-(1)   80/     22E : 0000 1000           	dc.l   Start        ; Game/demo
-(1)   81/     232 : 0000 0258           	dc.l   _rt			; Title display
-(1)   82/     236 :                     
-(1)   83/     236 :                     User:
-(1)   84/     236 : 13C0 0030 0001          move.b  d0,REG_DIPSW
-(1)   85/     23C : 1039 0010 FDAE          move.b  BIOS_USER_REQUEST,d0
-(1)   86/     242 : 0200 0003               andi.b  #3,d0
-(1)   87/     246 : E548                    lsl.w   #2,d0
-(1)   88/     248 : 41F8 0226               lea     jt_user,a0
-(1)   89/     24C : 2070 0000               movea.l (a0,d0),a0
-(1)   90/     250 : 4E90                    jsr     (a0)
-(1)   91/     252 : 4EF9 00C0 0444          jmp     BIOSF_SYSTEM_RETURN
-(1)   92/     258 :                     
-(1)   93/     258 :                     _rt:
-(1)   94/     258 : 4E75                	rts
-(1)   95/     25A :                     
-(1)   96/     25A :                     
- AS V1.42 Beta [Bld 79] - source file main.asm(header.asm) - page 6 - 1/15/2017 7:17:30
-
-
-(1)   97/     25A :                     Init:
-(1)   98/     25A : 33FC 0539 0010 F000 	move.w  #1337,$10F000		; Backup RAM init
-(1)   99/     262 : 4E75                	rts
-(1)  100/     264 :                     
-(1)  101/     264 :                     
+(1)   66/     222 : 4E73                	rte
+(1)   67/     224 :                     	
+(1)   68/     224 :                     ErrDivZero:
+(1)   69/     224 :                     ErrCHK:
+(1)   70/     224 :                     ErrTRAPV:
+(1)   71/     224 :                     ErrLineA:
+(1)   72/     224 :                     ErrLineF:
+(1)   73/     224 : 4E75                    rts
+(1)   74/     226 :                     
+(1)   75/     226 :                     jt_user:
+(1)   76/     226 : 0000 025A           	dc.l   Init			; Start-up init
+(1)   77/     22A : 0000 0258           	dc.l   _rt			; Eye-catcher
+(1)   78/     22E : 0000 1000           	dc.l   Start        ; Game/demo
+(1)   79/     232 : 0000 0258           	dc.l   _rt			; Title display
+(1)   80/     236 :                     
+(1)   81/     236 :                     User:
+(1)   82/     236 : 13C0 0030 0001          move.b  d0,REG_DIPSW
+(1)   83/     23C : 1039 0010 FDAE          move.b  BIOS_USER_REQUEST,d0
+(1)   84/     242 : 0200 0003               andi.b  #3,d0
+(1)   85/     246 : E548                    lsl.w   #2,d0
+(1)   86/     248 : 41F8 0226               lea     jt_user,a0
+(1)   87/     24C : 2070 0000               movea.l (a0,d0),a0
+(1)   88/     250 : 4E90                    jsr     (a0)
+(1)   89/     252 : 4EF9 00C0 0444          jmp     BIOSF_SYSTEM_RETURN
+(1)   90/     258 :                     
+(1)   91/     258 :                     _rt:
+(1)   92/     258 : 4E75                	rts
+(1)   93/     25A :                     
+(1)   94/     25A :                     Init:
+(1)   95/     25A : 33FC 0539 0010 F000 	move.w  #1337,$10F000		; Backup RAM init
+(1)   96/     262 : 4E75                	rts
+(1)   97/     264 :                     
       10/     264 :                         INCLUDE "ram.asm"
-(1)    1/  100000 :                     	org RAMSTART
+(1)    1/  100000 :                     	ORG RAMSTART
 (1)    2/  100000 :                     
-(1)    3/  100000 :                     FLAGS:			ds.b 1
-(1)    4/  100002 :                     FRAMES:			ds.b 1
-(1)    5/  100004 :                     LAG_LINES:		ds.w 1
-(1)    6/  100006 :                     LAG_LATCH:		ds.w 1
-(1)    7/  100008 :                     LAG_SIGN:		ds.b 1
-(1)    8/  10000A :                     
-(1)    9/  10000A :                     COUNT:			ds.b 1
-(1)   10/  10000C :                     DIRECTION:		ds.b 1
-(1)   11/  10000E :                     
-(1)   12/  10000E :                     VRAM_BUFFER:	ds.w 16
-(1)   13/  10002E :                     PREV_INPUT:		ds.b 1
-(1)   14/  100030 :                     
-      11/  100030 :                     
+(1)    3/  100000 :                     FLAG_VBI:		ds.b 1
+(1)    4/  100002 :                     FLAG_UPDATE:	ds.b 1
+(1)    5/  100004 :                     FRAMES:			ds.b 1
+(1)    6/  100006 :                     LAG_LINES:		ds.w 1
+(1)    7/  100008 :                     LAG_LATCH:		ds.w 1
+(1)    8/  10000A :                     LAG_SIGN:		ds.b 1
+(1)    9/  10000C :                     
+(1)   10/  10000C :                     COUNT:			ds.b 1
+(1)   11/  10000E :                     DIRECTION:		ds.b 1
+(1)   12/  100010 :                     
+(1)   13/  100010 :                     VRAM_BUFFER:	ds.w 16
+(1)   14/  100030 :                     PREV_INPUT:		ds.b 1
+(1)   15/  100032 :                     
+      11/  100032 :                     
       12/     300 :                         ORG $300
       13/     300 :                     	INCLUDE "irq.asm"
 (1)    1/     300 :                     IRQ3:
@@ -344,8 +311,11 @@
 (1)    3/     308 : 4E73                    rte
 (1)    4/     30A :                     
 (1)    5/     30A :                     TMRI:
-(1)    6/     30A : 5279 0010 0004      	addq.w  #1,LAG_LINES
+(1)    6/     30A : 5279 0010 0006      	addq.w  #1,LAG_LINES
 (1)    7/     310 : 33FC 0002 003C 000C     move.w  #2,REG_IRQACK
+ AS V1.42 Beta [Bld 79] - source file main.asm(irq.asm) - page 6 - 1/19/2017 10:57:34
+
+
 (1)    8/     318 : 4E73                    rte
 (1)    9/     31A :                     
 (1)   10/     31A :                     VBI:
@@ -358,8 +328,8 @@
 (1)   17/     334 : 46FC 2000               move.w  #$2000,sr
 (1)   18/     338 :                     
 (1)   19/     338 : 13C0 0030 0001          move.b  d0,REG_DIPSW			; Watchdoge
-(1)   20/     33E : 5239 0010 0002          addq.b  #1,FRAMES
-(1)   21/     344 : 50F9 0010 0000          st.b    FLAGS
+(1)   20/     33E : 5239 0010 0004          addq.b  #1,FRAMES
+(1)   21/     344 : 50F9 0010 0000          st.b    FLAG_VBI
 (1)   22/     34A : 201F                	move.l  (a7)+,d0
 (1)   23/     34C : 4E73                    rte
 (1)   24/     34E :                     
@@ -368,7 +338,7 @@
       16/    1000 :                     Start:
       17/    1000 : 4FF9 0010 F300          lea     $10F300,a7
       18/    1006 : 33FC 0000 003C 0006     move.w  #$0000,REG_LSPCMODE
-      19/    100E :                         
+      19/    100E :                     
       20/    100E : 13FC 0002 0010 FDAE     move.b  #2,BIOS_USER_REQUEST	; Game in progress
       21/    1016 :                     
       22/    1016 : 2E3C 0000 0797          move.l  #($F300/32)-1,d7		; Clear work RAM
@@ -376,9 +346,6 @@
       24/    1022 : 7000                    moveq.l #0,d0
       25/    1024 :                     .clear_ram:
       26/    1024 : 13C0 0030 0001          move.b  d0,REG_DIPSW			; Watchdoge
- AS V1.42 Beta [Bld 79] - source file main.asm - page 7 - 1/15/2017 7:17:30
-
-
       27/    102A : 20C0                    move.l  d0,(a0)+
       28/    102C : 20C0                    move.l  d0,(a0)+
       29/    102E : 20C0                    move.l  d0,(a0)+
@@ -404,322 +371,378 @@
       49/    1088 : 4EB9 00C0 04C8          jsr     BIOSF_LSP_1ST
       50/    108E :                     
       51/    108E :                         ; Display box
-      52/    108E : 41F8 1322               lea     box_data,a0
+      52/    108E : 41F8 138C               lea     box_data,a0
       53/    1092 : 323C 716C           	move.w  #$716C,d1
       54/    1096 : 343C 0300           	move.w  #$0300,d2
-      55/    109A : 4EB8 13AE               jsr     automap
+      55/    109A : 4EB8 1418               jsr     automap
       56/    109E :                         
-      57/    109E :                         ; Display menu
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 7 - 1/19/2017 10:57:34
+
+
+      57/    109E :                         ; Display title
       58/    109E : 08F9 0000 0010 FDC2 	bset.b  #0,BIOS_MESS_BUSY       ; Busy
       59/    10A6 : 2079 0010 FDBE      	movea.l BIOS_MESS_POINT,a0  	; Get current pointer
-      60/    10AC : 20FC 0000 1304      	move.l  #MESS_MENU,(a0)+
+      60/    10AC : 20FC 0000 134A      	move.l  #MESS_MENU,(a0)+
       61/    10B2 : 23C8 0010 FDBE      	move.l  a0,BIOS_MESS_POINT  	; Update pointer
       62/    10B8 : 08B9 0000 0010 FDC2 	bclr.b  #0,BIOS_MESS_BUSY   	; Ready to go
       63/    10C0 :                     
-      64/    10C0 : 4239 0010 0000          clr.b   FLAGS
-      65/    10C6 :                     
-      66/    10C6 : 33FC 00D0 003C 0006 	move.w  #$00D0,REG_LSPCMODE 	; Timer frame reload, zero reload, and IRQ enable
-      67/    10CE : 33FC 0000 003C 0008 	move.w  #$0000,REG_TIMERHIGH
-      68/    10D6 : 33FC 017F 003C 000A 	move.w  #$017F,REG_TIMERLOW	 	; 384-1 pixels
-      69/    10DE : 33FC 0007 003C 000C     move.w  #7,REG_IRQACK			; Clear IRQs
+      64/    10C0 : 33FC 00D0 003C 0006 	move.w  #$00D0,REG_LSPCMODE 	; Timer frame reload, zero reload, and IRQ enable
+      65/    10C8 : 33FC 0000 003C 0008 	move.w  #$0000,REG_TIMERHIGH
+      66/    10D0 : 33FC 017F 003C 000A 	move.w  #$017F,REG_TIMERLOW	 	; 384-1 pixels
+      67/    10D8 : 33FC 0007 003C 000C     move.w  #7,REG_IRQACK			; Clear IRQs
+      68/    10E0 :                     
+      69/    10E0 : 4239 0010 0000          clr.b   FLAG_VBI
       70/    10E6 :                     
       71/    10E6 :                     MainLoop:
-      72/    10E6 : 4A39 0010 0000          tst.b   FLAGS					; Wait for VBI
+      72/    10E6 : 4A39 0010 0000          tst.b   FLAG_VBI				; Wait for VBI
       73/    10EC : 67F8                    beq     MainLoop
-      74/    10EE : 4239 0010 0000          clr.b   FLAGS
+      74/    10EE : 4239 0010 0000          clr.b   FLAG_VBI
       75/    10F4 :                     
       76/    10F4 :                     	; Update screen as quickly as possible
       77/    10F4 : 33FC 0020 003C 0004 	move.w  #$20,VRAM_MOD
       78/    10FC :                     
-      79/    10FC :                     	; Flash
+      79/    10FC :                     	; Color flash (3 frames)
       80/    10FC : 303C 0BBB               move.w  #$0BBB,d0
-      81/    1100 : 0C39 0038 0010 000A 	cmp.b   #56,COUNT
-      82/    1108 : 6714                	beq     .flash
-      83/    110A : 0C39 003A 0010 000A 	cmp.b   #58,COUNT
-      84/    1112 : 670A                	beq     .flash
-      85/    1114 : 0C39 003C 0010 000A 	cmp.b   #60,COUNT
-      86/    111C : 6604                	bne     .no_flash
- AS V1.42 Beta [Bld 79] - source file main.asm - page 8 - 1/15/2017 7:17:30
+      81/    1100 : 0C39 0038 0010 000C 	cmp.b   #56,COUNT
+      82/    1108 : 6714                	beq     .orange
+      83/    110A : 0C39 003A 0010 000C 	cmp.b   #58,COUNT
+      84/    1112 : 6710                	beq     .red
+      85/    1114 : 0C39 003C 0010 000C 	cmp.b   #60,COUNT
+      86/    111C : 660A                	bne     .flash
+      87/    111E :                     .orange:
+      88/    111E : 303C 0F90               move.w  #$0F90,d0
+      89/    1122 : 6004                    bra     .flash
+      90/    1124 :                     .red:
+      91/    1124 : 303C 0F00               move.w  #$0F00,d0
+      92/    1128 :                     .flash:
+      93/    1128 : 33C0 0040 0008          move.w  d0,PALETTES+8
+      94/    112E :                     
+      95/    112E :                     	; Draw moving bar
+      96/    112E : 33FC 718D 003C 0000 	move.w  #$718D,VRAM_ADDR
+      97/    1136 : 7E0F                    moveq.l #15,d7
+      98/    1138 : 4EB8 144C           	jsr     vramcopy
+      99/    113C : 33FC 718E 003C 0000 	move.w  #$718E,VRAM_ADDR
+     100/    1144 : 7E0F                    moveq.l #15,d7
+     101/    1146 : 4EB8 144C           	jsr     vramcopy
+     102/    114A :                     
+     103/    114A :                     
+     104/    114A :                     
+     105/    114A :                     	; Trigger loop
+     106/    114A :                     .trig_loop:
+     107/    114A : 3839 003C 0006      	move.w  REG_LSPCMODE,d4
+     108/    1150 : EE4C                	lsr.w   #7,d4          		; Get raster #
+     109/    1152 : 0C39 003A 0010 000C 	cmp.b   #58,COUNT			; Is it reference time ?
+     110/    115A : 660C                	bne     .no_ref
+     111/    115C : B87C 0170           	cmp.w   #$170,d4			; Approx. line where moving bar shows up
+     112/    1160 : 6606                	bne     .no_ref
+     113/    1162 : 4279 0010 0006          clr.w   LAG_LINES			; Right here, right now
+     114/    1168 :                     .no_ref:
+     115/    1168 :                     
+     116/    1168 : 1039 0030 0000          move.b  REG_P1CNT,d0
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 8 - 1/19/2017 10:57:34
 
 
-      87/    111E :                     .flash:
-      88/    111E : 303C 0F00               move.w  #$0F00,d0
-      89/    1122 :                     .no_flash:
-      90/    1122 : 33C0 0040 0008          move.w  d0,PALETTES+8
-      91/    1128 :                     
-      92/    1128 :                     	; Draw bar
-      93/    1128 : 33FC 718D 003C 0000 	move.w  #$718D,VRAM_ADDR
-      94/    1130 : 4E71                	nop
-      95/    1132 : 4E71                	nop
-      96/    1134 : 7E0F                    moveq.l #15,d7
-      97/    1136 : 4EB8 13E2           	jsr     vramcopy
-      98/    113A :                     
-      99/    113A : 33FC 718E 003C 0000 	move.w  #$718E,VRAM_ADDR
-     100/    1142 : 4E71                	nop
-     101/    1144 : 4E71                	nop
-     102/    1146 : 7E0F                    moveq.l #15,d7
-     103/    1148 : 4EB8 13E2           	jsr     vramcopy
-     104/    114C :                     
-     105/    114C :                     
-     106/    114C :                     
-     107/    114C :                     	; Trigger loop
-     108/    114C :                     .trig_loop:
-     109/    114C : 3839 003C 0006      	move.w  REG_LSPCMODE,d4
-     110/    1152 : EE4C                	lsr.w   #7,d4          		; Raster #
-     111/    1154 :                     	; Get reference timing
-     112/    1154 : 0C39 003A 0010 000A 	cmp.b   #58,COUNT
-     113/    115C : 660C                	bne     .no_ref
-     114/    115E :                     	; Display just hit the drawing of the line ?
-     115/    115E : B87C 0170           	cmp.w   #$170,d4			; Approx.
-     116/    1162 : 6606                	bne     .no_ref
-     117/    1164 : 4279 0010 0004          clr.w   LAG_LINES			; Right here, right now
-     118/    116A :                     .no_ref:
-     119/    116A :                     
-     120/    116A : 1039 0030 0000          move.b  REG_P1CNT,d0
-     121/    1170 : 1239 0034 0000          move.b  REG_P2CNT,d1
-     122/    1176 : 1439 0010 002E          move.b  PREV_INPUT,d2		; MacroAS bug workaround
-     123/    117C : C001                    and.b   d1,d0				; Mix
-     124/    117E : 4600                    not.b   d0
-     125/    1180 : 0200 00F0               andi.b  #$F0,d0				; Keep A/B/C/D only
-     126/    1184 : 1200                	move.b  d0,d1
-     127/    1186 : B500                	eor.b   d2,d0				; Difference
-     128/    1188 : 13C1 0010 002E      	move.b  d1,PREV_INPUT
-     129/    118E : C001                	and.b   d1,d0				; Test for rising edge
-     130/    1190 : 672E                	beq     .no_input
-     131/    1192 : 3039 0010 0004      	move.w  LAG_LINES,d0		; Quick, latch !
-     132/    1198 : 4239 0010 0008      	clr.b   LAG_SIGN
-     133/    119E : B07C 1DE8           	cmp.w   #7656,d0            ; 116 / 2 / 2 * 264 = 7656
-     134/    11A2 : 630C                	bls     .positive
-     135/    11A4 : 4440                	neg.w   d0
-     136/    11A6 : 0640 3BD0           	addi.w  #15312,d0    		; 116 / 2 * 264 = 15312
-     137/    11AA : 50F9 0010 0008      	st.b    LAG_SIGN			; Negative
-     138/    11B0 :                     .positive:
-     139/    11B0 :                     	; LAG_LINES = number of lines
-     140/    11B0 :                     	; 1 line = 384px = 384/6000000s = 64us
-     141/    11B0 :                     	; LAG_LATCH = ms value = LAG_LINES * 64 / 1000
-     142/    11B0 : 7200                	moveq.l #0,d1
-     143/    11B2 : 3200                    move.w  d0,d1
-     144/    11B4 : ED89                	lsl.l   #6,d1				; *64
-     145/    11B6 : 82FC 03E8           	divu.w  #1000,d1			; /1000
-     146/    11BA :                     
- AS V1.42 Beta [Bld 79] - source file main.asm - page 9 - 1/15/2017 7:17:30
+     117/    116E : 1239 0034 0000          move.b  REG_P2CNT,d1
+     118/    1174 : 1439 0010 0030          move.b  PREV_INPUT,d2		; MacroAS bug workaround
+     119/    117A : C001                    and.b   d1,d0				; Mix P1 & P2 inputs
+     120/    117C : 4600                    not.b   d0
+     121/    117E : 0200 00F0               andi.b  #$F0,d0				; Keep buttons only
+     122/    1182 : 1200                	move.b  d0,d1
+     123/    1184 : B500                	eor.b   d2,d0				; Difference
+     124/    1186 : 13C1 0010 0030      	move.b  d1,PREV_INPUT
+     125/    118C : C001                	and.b   d1,d0				; Test for rising edge
+     126/    118E : 6738                	beq     .no_input
+     127/    1190 : 3039 0010 0006      	move.w  LAG_LINES,d0		; Quick, latch !
+     128/    1196 : 13FC 002B 0010 000A 	move.b  #$2B,LAG_SIGN       ; +: Too late
+     129/    119E : B07C 1DE8           	cmp.w   #7656,d0            ; 116 / 2 / 2 * 264 = 7656
+     130/    11A2 : 630E                	bls     .positive
+     131/    11A4 : 4440                	neg.w   d0
+     132/    11A6 : 0640 3BD0           	addi.w  #15312,d0    		; 116 / 2 * 264 = 15312
+     133/    11AA : 13FC 002D 0010 000A 	move.b  #$2D,LAG_SIGN		; -: Too early
+     134/    11B2 :                     .positive:
+     135/    11B2 :                     	; LAG_LINES = number of lines
+     136/    11B2 :                     	; 1 line = 384px = 384/6000000s = 64us
+     137/    11B2 :                     	; LAG_LATCH = ms value = LAG_LINES * 64 / 1000
+     138/    11B2 : 7200                	moveq.l #0,d1
+     139/    11B4 : 3200                    move.w  d0,d1
+     140/    11B6 : ED89                	lsl.l   #6,d1				; *64
+     141/    11B8 : 82FC 03E8           	divu.w  #1000,d1			; /1000
+     142/    11BC :                     
+     143/    11BC : 33C1 0010 0008      	move.w  d1,LAG_LATCH
+     144/    11C2 : 50F9 0010 0002      	st.b	FLAG_UPDATE			; Need to update display
+     145/    11C8 :                     .no_input:
+     146/    11C8 :                     
+     147/    11C8 : B87C 01F0           	cmp.w   #$1F0,d4
+     148/    11CC : 6600 FF7C           	bne     .trig_loop			; Exit loop at end of active display
+     149/    11D0 :                     
+     150/    11D0 :                     
+     151/    11D0 :                     
+     152/    11D0 :                     	; Display lag value if needed
+     153/    11D0 : 4A39 0010 0002      	tst.b   FLAG_UPDATE
+     154/    11D6 : 6736                	beq     .no_update
+     155/    11D8 : 4239 0010 0002      	clr.b   FLAG_UPDATE
+     156/    11DE : 33FC 7190 003C 0000     move.w  #$7190,VRAM_ADDR
+     157/    11E6 : 4240                	clr.w   d0
+     158/    11E8 : 1039 0010 000A      	move.b  LAG_SIGN,d0
+     159/    11EE : 4E71                	nop
+     160/    11F0 : 33C0 003C 0002          move.w  d0,VRAM_RW
+     161/    11F6 : 3039 0010 0008          move.w  LAG_LATCH,d0
+     162/    11FC : 4EB8 132C           	jsr     hex2bcd
+     163/    1200 : 3002                    move.w  d2,d0
+     164/    1202 : 33FC 7210 003C 0000     move.w  #$7210,VRAM_ADDR
+     165/    120A : 4EB8 1464               jsr     digiwrite
+     166/    120E :                     .no_update:
+     167/    120E :                     
+     168/    120E :                     	; Display frame counter
+     169/    120E : 7000                	moveq.l #0,d0
+     170/    1210 : 1039 0010 0004          move.b  FRAMES,d0
+     171/    1216 : 4EB8 132C           	jsr     hex2bcd
+     172/    121A : 3002                    move.w  d2,d0
+     173/    121C : 33FC 7350 003C 0000     move.w  #$7350,VRAM_ADDR
+     174/    1224 : 4EB8 1464               jsr     digiwrite
+     175/    1228 :                     
+     176/    1228 :                     	; :)
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 9 - 1/19/2017 10:57:34
 
 
-     147/    11BA : 33C1 0010 0006      	move.w  d1,LAG_LATCH
-     148/    11C0 :                     .no_input:
-     149/    11C0 :                     
-     150/    11C0 : B87C 01F0           	cmp.w   #$1F0,d4
-     151/    11C4 : 6686                	bne     .trig_loop			; Exit loop at end of active display
-     152/    11C6 :                     
-     153/    11C6 :                     
-     154/    11C6 :                     	; Display lag value
-     155/    11C6 : 33FC FFE0 003C 0004     move.w  #-$20,VRAM_MOD
-     156/    11CE : 4E71                    nop
-     157/    11D0 : 3039 0010 0006          move.w  LAG_LATCH,d0
-     158/    11D6 : 7E04                    moveq.l #4,d7
-     159/    11D8 : 33FC 7295 003C 0000     move.w  #$7295,VRAM_ADDR
-     160/    11E0 :                     .disp_loop:
-     161/    11E0 : 7200                	moveq.l #0,d1
-     162/    11E2 : 1200                	move.b  d0,d1
-     163/    11E4 : 0201 000F           	andi.b  #$F,d1
-     164/    11E8 : B23C 0009           	cmp.b   #9,d1
-     165/    11EC : 6302                	bls     .num
-     166/    11EE : 5E01                	addq.b  #7,d1
-     167/    11F0 :                     .num:
-     168/    11F0 : 0641 0030           	addi.w  #$30,d1
-     169/    11F4 : 33C1 003C 0002          move.w  d1,VRAM_RW
-     170/    11FA : E848                    lsr.w   #4,d0
-     171/    11FC : 5307                	subq.b  #1,d7
-     172/    11FE : 66E0                    bne     .disp_loop
-     173/    1200 :                     
-     174/    1200 :                     
-     175/    1200 : 1039 0032 0001      	move.b  REG_STATUS_A,d0		; :)
-     176/    1206 : 0200 0003           	andi.b  #3,d0
-     177/    120A : B03C 0003           	cmp.b   #3,d0
-     178/    120E : 6758                    beq     .no_ee
-     179/    1210 : 33FC 0001 003C 0004     move.w  #$1,VRAM_MOD
-     180/    1218 : 33FC 6FF0 0040 0002     move.w  #YELLOW,PALETTES+2
-     181/    1220 : 33FC 5F0F 0040 0004     move.w  #MAGENTA,PALETTES+4
-     182/    1228 : 33FC 5F0F 0040 1FFE     move.w  #MAGENTA,BACKDROPCOLOR
-     183/    1230 : 33FC 8000 0040 0008     move.w  #BLACK,PALETTES+8
-     184/    1238 : 33FC 7284 003C 0000     move.w  #$7284,VRAM_ADDR
-     185/    1240 : 33FC 5F0F 0040 0014     move.w  #MAGENTA,PALETTES+20
-     186/    1248 : 33FC 20F0 0040 0018     move.w  #GREEN,PALETTES+24
-     187/    1250 : 4E71                    nop
-     188/    1252 : 33FC 0146 003C 0002     move.w  #$146,VRAM_RW
-     189/    125A : 4E71                    nop
-     190/    125C : 4E71                    nop
-     191/    125E : 4E71                    nop
-     192/    1260 : 33FC 0246 003C 0002     move.w  #$246,VRAM_RW
-     193/    1268 :                     .no_ee:
-     194/    1268 :                     
-     195/    1268 :                     
-     196/    1268 :                         ; Do housekeeping now
-     197/    1268 :                         ;jsr     BIOSF_SYSTEM_IO	Do not want
-     198/    1268 : 4EB9 00C0 04CE          jsr     BIOSF_MESS_OUT
-     199/    126E :                     
-     200/    126E :                     	; Animate
-     201/    126E : 4A39 0010 000C      	tst.b   DIRECTION
-     202/    1274 : 6716                	beq     .dir_up
-     203/    1276 : 5539 0010 000A      	subq.b  #2,COUNT
-     204/    127C : 4A39 0010 000A          tst.b   COUNT
-     205/    1282 : 661E                    bne     .dir_end
-     206/    1284 : 4239 0010 000C          clr.b  	DIRECTION
- AS V1.42 Beta [Bld 79] - source file main.asm - page 10 - 1/15/2017 7:17:30
+     177/    1228 : 1039 0032 0001      	move.b  REG_STATUS_A,d0
+     178/    122E : 0200 0003           	andi.b  #3,d0
+     179/    1232 : B03C 0003           	cmp.b   #3,d0
+     180/    1236 : 6758                    beq     .no_ee
+     181/    1238 : 33FC 0001 003C 0004     move.w  #$1,VRAM_MOD
+     182/    1240 : 33FC 6FF0 0040 0002     move.w  #YELLOW,PALETTES+2
+     183/    1248 : 33FC 5F0F 0040 0004     move.w  #MAGENTA,PALETTES+4
+     184/    1250 : 33FC 5F0F 0040 1FFE     move.w  #MAGENTA,BACKDROPCOLOR
+     185/    1258 : 33FC 8000 0040 0008     move.w  #BLACK,PALETTES+8
+     186/    1260 : 33FC 7284 003C 0000     move.w  #$7284,VRAM_ADDR
+     187/    1268 : 33FC 5F0F 0040 0014     move.w  #MAGENTA,PALETTES+20
+     188/    1270 : 33FC 20F0 0040 0018     move.w  #GREEN,PALETTES+24
+     189/    1278 : 4E71                    nop
+     190/    127A : 33FC 0146 003C 0002     move.w  #$146,VRAM_RW
+     191/    1282 : 4E71                    nop
+     192/    1284 : 4E71                    nop
+     193/    1286 : 4E71                    nop
+     194/    1288 : 33FC 0246 003C 0002     move.w  #$246,VRAM_RW
+     195/    1290 :                     .no_ee:
+     196/    1290 :                     
+     197/    1290 :                     
+     198/    1290 :                         ; Do housekeeping now
+     199/    1290 :                         ;jsr     BIOSF_SYSTEM_IO	Do not want
+     200/    1290 : 4EB9 00C0 04CE          jsr     BIOSF_MESS_OUT
+     201/    1296 :                     
+     202/    1296 :                     	; Animate
+     203/    1296 : 4A39 0010 000E      	tst.b   DIRECTION
+     204/    129C : 6716                	beq     .dir_up
+     205/    129E : 5539 0010 000C      	subq.b  #2,COUNT			; Move 2px per frame
+     206/    12A4 : 4A39 0010 000C          tst.b   COUNT
+     207/    12AA : 661E                    bne     .dir_end
+     208/    12AC : 4239 0010 000E          clr.b  	DIRECTION
+     209/    12B2 : 6016                    bra     .dir_end
+     210/    12B4 :                     .dir_up:
+     211/    12B4 : 5439 0010 000C      	addq.b  #2,COUNT
+     212/    12BA : 0C39 0074 0010 000C     cmp.b   #116,COUNT
+     213/    12C2 : 6606                    bne     .dir_end
+     214/    12C4 : 50F9 0010 000E          st.b    DIRECTION
+     215/    12CA :                     .dir_end:
+     216/    12CA :                     
+     217/    12CA :                         ; 0~116, 116~0, ping-pong line animation
+     218/    12CA :                         ; 15-tiles bar
+     219/    12CA :                         ; 0: 80000000...
+     220/    12CA :                         ; 1: 70000000...
+     221/    12CA :                         ; 2: 60000000...
+     222/    12CA :                         ; 3: 50000000...
+     223/    12CA :                         ; 4: 40000000...
+     224/    12CA :                         ; 5: 3B000000...
+     225/    12CA :                         ; 6: 2A000000...
+     226/    12CA :                         ; 7: 19000000...
+     227/    12CA :                         ; 8: 08000000...
+     228/    12CA :                         ; First empty tiles = N / 8
+     229/    12CA :                         ; Left tile # = 8 - (N & 7)
+     230/    12CA :                         ; Right tile # = (N & 7) > 4 ? 16 - (N & 7) : 0
+     231/    12CA :                     	; Tile # offset = $300
+     232/    12CA :                     
+     233/    12CA :                     	; Render in RAM
+     234/    12CA : 41F9 0010 0010      	lea     VRAM_BUFFER,a0
+     235/    12D0 : 123C 0001           	move.b  #1,d1
+     236/    12D4 : 1039 0010 000C      	move.b  COUNT,d0
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 10 - 1/19/2017 10:57:34
 
 
-     207/    128A : 6016                    bra     .dir_end
-     208/    128C :                     .dir_up:
-     209/    128C : 5439 0010 000A      	addq.b  #2,COUNT
-     210/    1292 : 0C39 0074 0010 000A     cmp.b   #116,COUNT
-     211/    129A : 6606                    bne     .dir_end
-     212/    129C : 50F9 0010 000C          st.b    DIRECTION
-     213/    12A2 :                     .dir_end:
-     214/    12A2 :                     
-     215/    12A2 :                         ; 0~116, 116~0, ping-pong line animation
-     216/    12A2 :                         ; 15-tiles bar
-     217/    12A2 :                         ; 0: 80000000...
-     218/    12A2 :                         ; 1: 70000000...
-     219/    12A2 :                         ; 2: 60000000...
-     220/    12A2 :                         ; 3: 50000000...
-     221/    12A2 :                         ; 4: 40000000...
-     222/    12A2 :                         ; 5: 3B000000...
-     223/    12A2 :                         ; 6: 2A000000...
-     224/    12A2 :                         ; 7: 19000000...
-     225/    12A2 :                         ; 8: 08000000...
-     226/    12A2 :                         ; First empty tiles = N / 8
-     227/    12A2 :                         ; Left tile # = 8 - (N & 7)
-     228/    12A2 :                         ; Right tile # = (N & 7) > 4 ? 16 - (N & 7) : 0
-     229/    12A2 :                     	; Tile # offset = $300
-     230/    12A2 :                     
-     231/    12A2 :                     	; Render in RAM
-     232/    12A2 : 41F9 0010 000E      	lea     VRAM_BUFFER,a0
-     233/    12A8 : 123C 0001           	move.b  #1,d1
-     234/    12AC : 1039 0010 000A      	move.b  COUNT,d0
-     235/    12B2 : 1400                	move.b  d0,d2
-     236/    12B4 : E608                	lsr.b   #3,d0				; N / 8
-     237/    12B6 : 670A                	beq     .no_padding
-     238/    12B8 : D200                	add.b   d0,d1
-     239/    12BA :                     .pad:
-     240/    12BA : 30FC 0300           	move.w  #$0300,(a0)+		; Empty tile
-     241/    12BE : 5300                	subq.b  #1,d0
-     242/    12C0 : 66F8                	bne     .pad
-     243/    12C2 :                     
-     244/    12C2 :                     .no_padding:
-     245/    12C2 : 0202 0007           	andi.b  #7,d2
-     246/    12C6 : 1002                	move.b  d2,d0				; N & 7
-     247/    12C8 : 4400                	neg.b   d0
-     248/    12CA : 0600 0008           	addi.b  #8,d0
-     249/    12CE : 0240 000F           	andi.w  #$000F,d0
-     250/    12D2 : 0040 0300           	ori.w   #$0300,d0
-     251/    12D6 : 30C0                	move.w  d0,(a0)+			; Left tile
-     252/    12D8 :                     
-     253/    12D8 : 1002                	move.b  d2,d0
-     254/    12DA : B03C 0004           	cmp.b   #4,d0
-     255/    12DE : 6312                	bls     .no_right
-     256/    12E0 : 5201                	addq.b  #1,d1
-     257/    12E2 : 4400                	neg.b   d0
-     258/    12E4 : 0600 0010           	addi.b  #16,d0
-     259/    12E8 : 0240 001F           	andi.w  #$001F,d0
-     260/    12EC : 0040 0300           	ori.w   #$0300,d0
-     261/    12F0 : 30C0                	move.w  d0,(a0)+			; Right tile
-     262/    12F2 :                     
-     263/    12F2 :                     .no_right:
-     264/    12F2 :                     .fill:
-     265/    12F2 : B23C 000F           	cmp.b   #15,d1
-     266/    12F6 : 6708                	beq     .no_fill
- AS V1.42 Beta [Bld 79] - source file main.asm - page 11 - 1/15/2017 7:17:30
+     237/    12DA : 1400                	move.b  d0,d2
+     238/    12DC : E608                	lsr.b   #3,d0				; N / 8
+     239/    12DE : 670A                	beq     .no_padding
+     240/    12E0 : D200                	add.b   d0,d1
+     241/    12E2 :                     .pad:
+     242/    12E2 : 30FC 0300           	move.w  #$0300,(a0)+		; Empty tile
+     243/    12E6 : 5300                	subq.b  #1,d0
+     244/    12E8 : 66F8                	bne     .pad
+     245/    12EA :                     
+     246/    12EA :                     .no_padding:
+     247/    12EA : 0202 0007           	andi.b  #7,d2
+     248/    12EE : 1002                	move.b  d2,d0				; N & 7
+     249/    12F0 : 4400                	neg.b   d0
+     250/    12F2 : 0600 0008           	addi.b  #8,d0
+     251/    12F6 : 0240 000F           	andi.w  #$000F,d0
+     252/    12FA : 0040 0300           	ori.w   #$0300,d0
+     253/    12FE : 30C0                	move.w  d0,(a0)+			; Left tile
+     254/    1300 :                     
+     255/    1300 : 1002                	move.b  d2,d0
+     256/    1302 : B03C 0004           	cmp.b   #4,d0
+     257/    1306 : 6312                	bls     .no_right
+     258/    1308 : 5201                	addq.b  #1,d1
+     259/    130A : 4400                	neg.b   d0
+     260/    130C : 0600 0010           	addi.b  #16,d0
+     261/    1310 : 0240 001F           	andi.w  #$001F,d0
+     262/    1314 : 0040 0300           	ori.w   #$0300,d0
+     263/    1318 : 30C0                	move.w  d0,(a0)+			; Right tile
+     264/    131A :                     
+     265/    131A :                     .no_right:
+     266/    131A :                     .fill:
+     267/    131A : B23C 000F           	cmp.b   #15,d1
+     268/    131E : 6708                	beq     .no_fill
+     269/    1320 : 30FC 0300           	move.w  #$0300,(a0)+
+     270/    1324 : 5201                	addq.b  #1,d1
+     271/    1326 : 66F2                	bne     .fill
+     272/    1328 :                     .no_fill:
+     273/    1328 :                     
+     274/    1328 : 6000 FDBC           	bra     MainLoop
+     275/    132C :                     
+     276/    132C :                     
+     277/    132C :                     
+     278/    132C :                     hex2bcd:
+     279/    132C : 7E04                    moveq.l #4,d7				; 4 digits
+     280/    132E : 7400                	moveq.l #0,d2
+     281/    1330 :                     .conv_loop:
+     282/    1330 : 80FC 000A           	divu.w  #10,d0
+     283/    1334 : 2200                	move.l  d0,d1
+     284/    1336 : C0BC 0000 FFFF          and.l   #$FFFF,d0			; Keep quotient
+     285/    133C : 4241                    clr.w   d1					; Keep remainder
+     286/    133E : E889                    lsr.l   #4,d1
+     287/    1340 : E84A                    lsr.w   #4,d2
+     288/    1342 : D441                    add.w   d1,d2				; Insert new digit
+     289/    1344 : 5307                    subq.b  #1,d7
+     290/    1346 : 66E8                    bne     .conv_loop
+     291/    1348 : 4E75                    rts
+     292/    134A :                     
+     293/    134A :                     MESS_MENU:
+     294/    134A : 0001                	dc.w $0001					; Bytes, end code = $FF
+     295/    134C : 00FF                	dc.w $00FF
+     296/    134E :                     
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 11 - 1/19/2017 10:57:34
 
 
-     267/    12F8 : 30FC 0300           	move.w  #$0300,(a0)+
-     268/    12FC : 5201                	addq.b  #1,d1
-     269/    12FE : 66F2                	bne     .fill
-     270/    1300 :                     .no_fill:
-     271/    1300 :                     
-     272/    1300 :                     
-     273/    1300 : 6000 FDE4           	bra     MainLoop
-     274/    1304 :                     
-     275/    1304 :                     
-     276/    1304 :                     MESS_MENU:
-     277/    1304 : 0001                	dc.w $0001
-     278/    1306 : 00FF                	dc.w $00FF
-     279/    1308 :                     
-     280/    1308 : 0003                	dc.w $0003
-     281/    130A : 7184                	dc.w $7184
-     282/    130C :                     
-     283/    130C : 0108                	dc.w $0108
-     284/    130E : 4E45 4F47 454F 2020 	dc.b "NEOGEO  LAG TEST", $FF
+     297/    134E : 2002                	dc.w $2002  				; Set auto-inc
+     298/    1350 :                     
+     299/    1350 : 0003                	dc.w $0003					; Set VRAM address
+     300/    1352 : 7184                	dc.w $7184
+     301/    1354 :                     
+     302/    1354 : 0108                	dc.w $0108					; Write with big font
+     303/    1356 : 4E45 4F47 454F 2020 	dc.b "NEOGEO  LAG TEST", $FF
                     4C41 4720 5445 5354 
                     FF00                
-     285/    1320 :                     
-     286/    1320 : 0000                	dc.w $0000
-     287/    1322 :                     
-     288/    1322 :                     box_data:
-     289/    1322 : 0011 0004               dc.w 17, 4
-     290/    1326 : 000C 000D 000D 000D     dc.w 12,13,13,13,13,13,13,13,20,13,13,13,13,13,13,13,14
+     304/    1368 :                     
+     305/    1368 : 0003                	dc.w $0003					; Set VRAM address
+     306/    136A : 7230                	dc.w $7230
+     307/    136C :                     
+     308/    136C : 0007                	dc.w $0007					; Write
+     309/    136E : 6D73 FF00           	dc.b "ms", $FF
+     310/    1372 :                     
+     311/    1372 : 0003                	dc.w $0003					; Set VRAM address
+     312/    1374 : 7196                	dc.w $7196
+     313/    1376 :                     
+     314/    1376 : 0007                	dc.w $0007					; Write
+     315/    1378 : 3120 6672 616D 6520 	dc.b "1 frame = 16.8ms", $FF
+                    3D20 3136 2E38 6D73 
+                    FF00                
+     316/    138A :                     
+     317/    138A : 0000                	dc.w $0000
+     318/    138C :                     
+     319/    138C :                     box_data:
+     320/    138C : 0011 0004               dc.w 17, 4
+     321/    1390 : 000C 000D 000D 000D     dc.w 12,13,13,13,13,13,13,13,20,13,13,13,13,13,13,13,14
                     000D 000D 000D 000D 
                     0014 000D 000D 000D 
                     000D 000D 000D 000D 
                     000E                
-     291/    1348 : 000F 0000 0000 0000     dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
+     322/    13B2 : 000F 0000 0000 0000     dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
                     0000 0000 0000 0000 
                     0000 0000 0000 0000 
                     0000 0000 0000 0000 
                     0010                
-     292/    136A : 000F 0000 0000 0000     dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
+     323/    13D4 : 000F 0000 0000 0000     dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
                     0000 0000 0000 0000 
                     0000 0000 0000 0000 
                     0000 0000 0000 0000 
                     0010                
-     293/    138C : 0011 0012 0012 0012     dc.w 17,18,18,18,18,18,18,18,21,18,18,18,18,18,18,18,19
+     324/    13F6 : 0011 0012 0012 0012     dc.w 17,18,18,18,18,18,18,18,21,18,18,18,18,18,18,18,19
                     0012 0012 0012 0012 
                     0015 0012 0012 0012 
                     0012 0012 0012 0012 
                     0013                
-     294/    13AE :                         
-     295/    13AE :                         INCLUDE "video.asm"
-(1)    1/    13AE :                     automap:
-(1)    2/    13AE : 33C1 003C 0000      	move.w  d1,VRAM_ADDR
-(1)    3/    13B4 : 3618                    move.w  (a0)+,d3			    ; Width
-(1)    4/    13B6 : 3818                    move.w  (a0)+,d4			    ; Height
-(1)    5/    13B8 : 3A03                    move.w  d3,d5
-(1)    6/    13BA : 33FC 0020 003C 0004 	move.w  #$20,VRAM_MOD
-(1)    7/    13C2 :                     .height_loop:
-(1)    8/    13C2 : 3605                    move.w  d5,d3					; Reload width
-(1)    9/    13C4 :                     .width_loop:
-(1)   10/    13C4 : 3018                    move.w  (a0)+,d0
-(1)   11/    13C6 : D042                	add.w   d2,d0
-(1)   12/    13C8 : 33C0 003C 0002      	move.w  d0,VRAM_RW
-(1)   13/    13CE : 4E71                    nop
- AS V1.42 Beta [Bld 79] - source file main.asm(video.asm) - page 12 - 1/15/2017 7:17:30
+     325/    1418 :                         
+     326/    1418 :                         INCLUDE "video.asm"
+(1)    1/    1418 :                     automap:
+(1)    2/    1418 : 33C1 003C 0000      	move.w  d1,VRAM_ADDR
+(1)    3/    141E : 3618                    move.w  (a0)+,d3			    ; Width
+(1)    4/    1420 : 3818                    move.w  (a0)+,d4			    ; Height
+(1)    5/    1422 : 3A03                    move.w  d3,d5
+(1)    6/    1424 : 33FC 0020 003C 0004 	move.w  #$20,VRAM_MOD
+(1)    7/    142C :                     .height_loop:
+(1)    8/    142C : 3605                    move.w  d5,d3					; Reload width
+(1)    9/    142E :                     .width_loop:
+(1)   10/    142E : 3018                    move.w  (a0)+,d0
+ AS V1.42 Beta [Bld 79] - source file main.asm(video.asm) - page 12 - 1/19/2017 10:57:34
 
 
-(1)   14/    13D0 : 5343                    subq.w  #1,d3
-(1)   15/    13D2 : 66F0                    bne     .width_loop
-(1)   16/    13D4 : 5241                	addq.w  #1,d1
-(1)   17/    13D6 : 33C1 003C 0000      	move.w  d1,VRAM_ADDR			; Next line
-(1)   18/    13DC : 5344                    subq.w  #1,d4
-(1)   19/    13DE : 66E2                    bne     .height_loop
-(1)   20/    13E0 : 4E75                	rts
-(1)   21/    13E2 :                     
-(1)   22/    13E2 :                     vramcopy:
-(1)   23/    13E2 : 41F9 0010 000E      	lea     VRAM_BUFFER,a0
-(1)   24/    13E8 :                     .copy_loop:
-(1)   25/    13E8 : 33D8 003C 0002          move.w  (a0)+,VRAM_RW
-(1)   26/    13EE : 4E71                    nop                  		; Slow the fuck down
-(1)   27/    13F0 : 5307                    subq.b  #1,d7
-(1)   28/    13F2 : 66F4                    bne     .copy_loop
-(1)   29/    13F4 : 4E75                    rts
-(1)   30/    13F6 :                     
-     296/    13F6 :                     
- AS V1.42 Beta [Bld 79] - source file main.asm - page 13 - 1/15/2017 7:17:30
+(1)   11/    1430 : D042                	add.w   d2,d0
+(1)   12/    1432 : 33C0 003C 0002      	move.w  d0,VRAM_RW
+(1)   13/    1438 : 4E71                    nop
+(1)   14/    143A : 5343                    subq.w  #1,d3
+(1)   15/    143C : 66F0                    bne     .width_loop
+(1)   16/    143E : 5241                	addq.w  #1,d1
+(1)   17/    1440 : 33C1 003C 0000      	move.w  d1,VRAM_ADDR			; Next line
+(1)   18/    1446 : 5344                    subq.w  #1,d4
+(1)   19/    1448 : 66E2                    bne     .height_loop
+(1)   20/    144A : 4E75                	rts
+(1)   21/    144C :                     
+(1)   22/    144C :                     vramcopy:
+(1)   23/    144C : 41F9 0010 0010      	lea     VRAM_BUFFER,a0
+(1)   24/    1452 : 4E71                	nop
+(1)   25/    1454 : 4E71                	nop
+(1)   26/    1456 :                     .copy_loop:
+(1)   27/    1456 : 33D8 003C 0002          move.w  (a0)+,VRAM_RW
+(1)   28/    145C : 4E71                    nop                  			; Slow the fuck down
+(1)   29/    145E : 5307                    subq.b  #1,d7
+(1)   30/    1460 : 66F4                    bne     .copy_loop
+(1)   31/    1462 : 4E75                    rts
+(1)   32/    1464 :                     
+(1)   33/    1464 :                     digiwrite:
+(1)   34/    1464 : 7E04                    moveq.l #4,d7				; 4 digits
+(1)   35/    1466 : 7200                	moveq.l #0,d1
+(1)   36/    1468 : 33FC FFE0 003C 0004     move.w  #-$20,VRAM_MOD		; Draw backwards (simpler)
+(1)   37/    1470 :                     .disp_loop:
+(1)   38/    1470 : 1200                	move.b  d0,d1
+(1)   39/    1472 : 0201 000F           	andi.b  #$F,d1
+(1)   40/    1476 : B23C 0009           	cmp.b   #9,d1				; Hex to ASCII
+(1)   41/    147A : 6302                	bls     .num
+(1)   42/    147C : 5E01                	addq.b  #7,d1
+(1)   43/    147E :                     .num:
+(1)   44/    147E : 0641 0030           	addi.w  #$30,d1
+(1)   45/    1482 : 33C1 003C 0002          move.w  d1,VRAM_RW
+(1)   46/    1488 : E848                    lsr.w   #4,d0				; Next nibble
+(1)   47/    148A : 5307                	subq.b  #1,d7
+(1)   48/    148C : 66E2                    bne     .disp_loop
+(1)   49/    148E : 4E75                    rts
+(1)   50/    1490 :                     
+     327/    1490 :                     
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 13 - 1/19/2017 10:57:34
 
 
   symbol table (* = unused):
   ------------------------
 
-*ARCHITECTURE :  i386-unknown-win32 - |  AUTOMAP :                     13AE C |
- AUTOMAP.HEIGHT_LOOP :         13C2 C |  AUTOMAP.WIDTH_LOOP :          13C4 C |
+*ARCHITECTURE :  i386-unknown-win32 - |  AUTOMAP :                     1418 C |
+ AUTOMAP.HEIGHT_LOOP :         142C C |  AUTOMAP.WIDTH_LOOP :          142E C |
  BACKDROPCOLOR :             401FFE - | *BIGENDIAN :                      0 - |
 *BIOSF_CARD :                C00468 - | *BIOSF_CARD_ERROR :          C0046E - |
 *BIOSF_CDDACMD :             C0056A - | *BIOSF_CREDIT_CHECK :        C00450 - |
@@ -751,41 +774,44 @@
 *BIOS_USER_MODE :            10FDAF - |  BIOS_USER_REQUEST :         10FDAE - |
 *BIOS_WEEKDAY :              10FDD5 - | *BIOS_YEAR :                 10FDD2 - |
  BLACK :                       8000 - | *BLUE :                        100F - |
- BOX_DATA :                    1322 C | *BRANCHEXT :                      0 - |
+ BOX_DATA :                    138C C | *BRANCHEXT :                      0 - |
 *CASESENSITIVE :                  0 - | *CNT_A :                          4 - |
 *CNT_B :                          5 - | *CNT_C :                          6 - |
 *CNT_D :                          7 - | *CNT_DN :                         1 - |
 *CNT_LE :                         2 - | *CNT_RI :                         3 - |
 *CNT_UP :                         0 - | *CONSTPI :        3.141592653589793 - |
- COUNT :                     10000A C | *CYAN :                        30FF - |
-*DATE :                   1/15/2017 - |  DIRECTION :                 10000C C |
- ERRCHK :                       224 C |  ERRDIVZERO :                   224 C |
- ERRG :                         222 C |  ERRLINEA :                     224 C |
- ERRLINEF :                     224 C |  ERRTRAPV :                     224 C |
-*FALSE :                          0 - | *FIXMAP :                      7000 - |
- FLAGS :                     100000 C |  FRAMES :                    100002 C |
+ COUNT :                     10000C C | *CYAN :                        30FF - |
+*DATE :                   1/19/2017 - |  DIGIWRITE :                   1464 C |
+ DIGIWRITE.DISP_LOOP :         1470 C |  DIGIWRITE.NUM :               147E C |
+ DIRECTION :                 10000E C |  ERRCHK :                       224 C |
+ ERRDIVZERO :                   224 C |  ERRG :                         222 C |
+ ERRLINEA :                     224 C |  ERRLINEF :                     224 C |
+ ERRTRAPV :                     224 C | *FALSE :                          0 - |
+*FIXMAP :                      7000 - |  FLAG_UPDATE :               100002 C |
+ FLAG_VBI :                  100000 C |  FRAMES :                    100004 C |
 *FULLPMMU :                       1 - |  GREEN :                       20F0 - |
 *HAS64 :                          1 - | *HASDSP :                         0 - |
 *HASFPU :                         0 - | *HASPMMU :                        0 - |
+ HEX2BCD :                     132C C |  HEX2BCD.CONV_LOOP :           1330 C |
 *INEXTMODE :                      0 - |  INIT :                         25A C |
 *INLWORDMODE :                    0 - | *INMAXMODE :                      0 - |
 *INSRCMODE :                      0 - | *INSUPMODE :                      1 - |
  IRQ3 :                         300 C |  JT_USER :                      226 C |
- LAG_LATCH :                 100006 C |  LAG_LINES :                 100004 C |
- LAG_SIGN :                  100008 C | *LISTON :                         1 - |
+ LAG_LATCH :                 100008 C |  LAG_LINES :                 100006 C |
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 14 - 1/19/2017 10:57:34
+
+
+ LAG_SIGN :                  10000A C | *LISTON :                         1 - |
 *MACEXP :                         1 - |  MAGENTA :                     5F0F - |
- MAINLOOP :                    10E6 C |  MAINLOOP.DIR_END :            12A2 C |
- AS V1.42 Beta [Bld 79] - source file main.asm - page 14 - 1/15/2017 7:17:30
-
-
- MAINLOOP.DIR_UP :             128C C |  MAINLOOP.DISP_LOOP :          11E0 C |
- MAINLOOP.FILL :               12F2 C |  MAINLOOP.FLASH :              111E C |
- MAINLOOP.NO_EE :              1268 C |  MAINLOOP.NO_FILL :            1300 C |
- MAINLOOP.NO_FLASH :           1122 C |  MAINLOOP.NO_INPUT :           11C0 C |
- MAINLOOP.NO_PADDING :         12C2 C |  MAINLOOP.NO_REF :             116A C |
- MAINLOOP.NO_RIGHT :           12F2 C |  MAINLOOP.NUM :                11F0 C |
- MAINLOOP.PAD :                12BA C |  MAINLOOP.POSITIVE :           11B0 C |
- MAINLOOP.TRIG_LOOP :          114C C |  MESS_MENU :                   1304 C |
+ MAINLOOP :                    10E6 C |  MAINLOOP.DIR_END :            12CA C |
+ MAINLOOP.DIR_UP :             12B4 C |  MAINLOOP.FILL :               131A C |
+ MAINLOOP.FLASH :              1128 C |  MAINLOOP.NO_EE :              1290 C |
+ MAINLOOP.NO_FILL :            1328 C |  MAINLOOP.NO_INPUT :           11C8 C |
+ MAINLOOP.NO_PADDING :         12EA C |  MAINLOOP.NO_REF :             1168 C |
+ MAINLOOP.NO_RIGHT :           131A C |  MAINLOOP.NO_UPDATE :          120E C |
+ MAINLOOP.ORANGE :             111E C |  MAINLOOP.PAD :                12E2 C |
+ MAINLOOP.POSITIVE :           11B2 C |  MAINLOOP.RED :                1124 C |
+ MAINLOOP.TRIG_LOOP :          114A C |  MESS_MENU :                   134A C |
 *MIDBLUE :                     1007 - | *MIDCYAN :                     3077 - |
 *MIDGREEN :                    2070 - | *MIDGREY :                     7777 - |
 *MIDMAGENTA :                  5707 - | *MIDRED :                      4700 - |
@@ -793,20 +819,13 @@
 *MOMCPUNAME :                 68000 - | *NESTMAX :                      100 - |
 *ORANGE :                      6F70 - | *PACKING :                        0 - |
 *PADDING :                        1 - |  PALETTES :                  400000 - |
- PREV_INPUT :                10002E C |  RAMSTART :                  100000 - |
+ PREV_INPUT :                100030 C |  RAMSTART :                  100000 - |
  RED :                         4F00 - | *REG_BRDFIX :                3A000B - |
-*REG_CDCONFIG :              FF011C - | *REG_CDDALEFTL :             FF0188 - |
-*REG_CDDARIGHTL :            FF018A - | *REG_CRDLOCK1 :              3A0015 - |
-*REG_CRDLOCK2 :              3A0007 - | *REG_CRDNORMAL :             3A0019 - |
-*REG_CRDREGSEL :             3A0009 - | *REG_CRDUNLOCK1 :            3A0005 - |
-*REG_CRDUNLOCK2 :            3A0017 - | *REG_CRTFIX :                3A001B - |
- REG_DIPSW :                 300001 - | *REG_DISBLFIX :              FF0115 - |
-*REG_DISBLIRQ :              FF016F - | *REG_DISBLSPR :              FF0111 - |
+*REG_CRDLOCK1 :              3A0015 - | *REG_CRDLOCK2 :              3A0007 - |
+*REG_CRDNORMAL :             3A0019 - | *REG_CRDREGSEL :             3A0009 - |
+*REG_CRDUNLOCK1 :            3A0005 - | *REG_CRDUNLOCK2 :            3A0017 - |
+*REG_CRTFIX :                3A001B - |  REG_DIPSW :                 300001 - |
 *REG_DISPDSABL :             3A0011 - | *REG_DISPENABL :             3A0001 - |
-*REG_DMACPYDEST :            FF0068 - | *REG_DMACPYSRC :             FF0064 - |
-*REG_DMAFILDEST :            FF0064 - | *REG_DMAFILVAL :             FF006C - |
-*REG_DMASIZE :               FF0070 - | *REG_DMASTART :              FF0060 - |
-*REG_ENVIDEO :               FF0119 - | *REG_ENZ80 :                 FF0183 - |
  REG_IRQACK :                3C000C - |  REG_LSPCMODE :              3C0006 - |
  REG_P1CNT :                 300000 - |  REG_P2CNT :                 340000 - |
 *REG_PALBANK0 :              3A001F - | *REG_PALBANK1 :              3A000F - |
@@ -815,29 +834,25 @@
 *REG_SRAMUNLOCK :            3A001D - |  REG_STATUS_A :              320001 - |
 *REG_STATUS_B :              380000 - | *REG_SWPROM :                3A0013 - |
  REG_TIMERHIGH :             3C0008 - |  REG_TIMERLOW :              3C000A - |
-*REG_TIMERSTOP :             3C000E - | *REG_UPMAPFIX :              FF0129 - |
-*REG_UPMAPPCM :              FF0123 - | *REG_UPMAPSPR :              FF0121 - |
-*REG_UPMAPZ80 :              FF0127 - | *REG_UPUNMAPFIX :            FF0149 - |
-*REG_UPUNMAPPCM :            FF0143 - | *REG_UPUNMAPSPR :            FF0141 - |
-*REG_UPUNMAPZ80 :            FF0147 - | *RELAXED :                        0 - |
+*REG_TIMERSTOP :             3C000E - | *RELAXED :                        0 - |
 *SCB1 :                           0 - | *SCB2 :                        8000 - |
 *SCB3 :                        8200 - | *SCB4 :                        8400 - |
  SCODE :                        186 C |  SOFTDIPS :                     200 C |
 *SOUND_STOP :                D00046 - |  START :                       1000 C |
- START.CLEAR_RAM :             1024 C | *TIME :                     7:17:30 - |
+ START.CLEAR_RAM :             1024 C | *TIME :                    10:57:33 - |
  TMRI :                         30A C | *TRUE :                           1 - |
  USER :                         236 C |  VBI :                          31A C |
  VBI.USERVBI :                  32A C | *VERSION :                     142F - |
- VRAMCOPY :                    13E2 C |  VRAMCOPY.COPY_LOOP :          13E8 C |
- VRAM_ADDR :                 3C0000 - |  VRAM_BUFFER :               10000E C |
+ VRAMCOPY :                    144C C |  VRAMCOPY.COPY_LOOP :          1456 C |
+ VRAM_ADDR :                 3C0000 - |  VRAM_BUFFER :               100010 C |
  VRAM_MOD :                  3C0004 - |  VRAM_RW :                   3C0002 - |
  WHITE :                       7FFF - |  YELLOW :                      6FF0 - |
  _RT :                          258 C |
 
-    223 symbols
-    143 unused symbols
+    207 symbols
+    121 unused symbols
 
- AS V1.42 Beta [Bld 79] - source file main.asm - page 15 - 1/15/2017 7:17:30
+ AS V1.42 Beta [Bld 79] - source file main.asm - page 15 - 1/19/2017 10:57:34
 
 
   codepages:
@@ -846,9 +861,9 @@
 STANDARD (0 changed characters)
 
 
-0.06 seconds assembly time
+0.05 seconds assembly time
 
-    636 lines source file
+    657 lines source file
       2 passes
       0 errors
       0 warnings

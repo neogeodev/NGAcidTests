@@ -1,6 +1,7 @@
-	org RAMSTART
+	ORG RAMSTART
 
-FLAGS:			ds.b 1
+FLAG_VBI:		ds.b 1
+FLAG_UPDATE:	ds.b 1
 FRAMES:			ds.b 1
 LAG_LINES:		ds.w 1
 LAG_LATCH:		ds.w 1

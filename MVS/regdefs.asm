@@ -76,33 +76,6 @@ BIOSF_MESS_OUT      equ $C004CE
 BIOSF_UPLOAD        equ $C00546 ;Upload data to DRAM, CD only 
 BIOSF_CDDACMD       equ $C0056A ;Issue CDDA command, CD only
 
-;DMA related:
-REG_DMACPYSRC   equ $FF0064 ;longword: Copy source address ?
-REG_DMAFILDEST  equ $FF0064 ;longword: Fill destination address ?
-REG_DMACPYDEST  equ $FF0068 ;longword: Copy destination address ?
-REG_DMAFILVAL   equ $FF006C ;word: Fill value (word) ?
-REG_DMASIZE     equ $FF0070 ;longword?: Size (in 16 bit words)
-REG_DMASTART    equ $FF0060 ;byte: Start transfer ($40 ?)
-
-REG_DISBLSPR    equ $FF0111 ;byte: 0/1 disable sprites
-REG_DISBLFIX    equ $FF0115 ;byte: 0/1 disable fix layer
-REG_ENVIDEO     equ $FF0119 ;byte: 0/1 enable video output
-REG_CDCONFIG    equ $FF011C ;word: jumper and lid switch input
-
-REG_UPMAPSPR    equ $FF0121 ;bytes (0 or 1)
-REG_UPMAPPCM    equ $FF0123
-REG_UPMAPZ80    equ $FF0127
-REG_UPMAPFIX    equ $FF0129
-REG_UPUNMAPSPR  equ $FF0141
-REG_UPUNMAPPCM  equ $FF0143
-REG_UPUNMAPZ80  equ $FF0147
-REG_UPUNMAPFIX  equ $FF0149
-REG_DISBLIRQ    equ $FF016F
-REG_ENZ80       equ $FF0183
-
-REG_CDDALEFTL   equ $FF0188 ;CD audio levels
-REG_CDDARIGHTL  equ $FF018A
-
 BIOS_SYSTEM_MODE  equ $10FD80 ;Game/system mode (bit 7)
 BIOS_MVS_FLAG     equ $10FD82
 BIOS_COUNTRY_CODE equ $10FD83

@@ -18,6 +18,6 @@ VBI:
 
     move.b  d0,REG_DIPSW			; Watchdoge
     addq.b  #1,FRAMES
-    st.b    FLAGS
+    st.b    FLAG_VBI
 	move.l  (a7)+,d0
     rte

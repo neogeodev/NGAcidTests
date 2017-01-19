@@ -1,4 +1,4 @@
-    org $0
+    ORG $0
     dc.l $10F300		; Initial SP
     dc.l $C00402		; Initial PC
     dc.l $C00408, $C0040E, $C00414, ErrDivZero	; Bus error, Address error, Illegal Instruction, Divide by 0
@@ -18,30 +18,30 @@
     dc.l $FFFFFFFF,$FFFFFFFF,$FFFFFFFF,$FFFFFFFF
     dc.l $FFFFFFFF,$FFFFFFFF
 
-    org $0100
+    ORG $0100
     dc.b "NEO-GEO", $00
 
-    dc.w $0002			; NGH (Baseball Stars Professional)
+    dc.w $0029			; NGH (Legend of Success Joe, because nobody wants that)
     dc.l $00020000      ; P1 size (128KiB)
     dc.l $0010F000		; Pointer to debug DIPs (none)
     dc.w $0001			; No save (0 is not allowed ?)
 
-    org $0114
+    ORG $0114
     dc.w $0200			; No eye-catcher, sprite bank number ignored
     dc.l SoftDIPs		; JP
     dc.l SoftDIPs		; US
     dc.l SoftDIPs		; EU
 
-    org $0122
+    ORG $0122
 	jmp User
-    org $0128
+    ORG $0128
 	jmp _rt				; Player_start
-    org $012E
+    ORG $012E
 	jmp _rt				; Demo_end
-    org $0134
+    ORG $0134
 	jmp _rt				; Coin_sound
 
-    org $0182
+    ORG $0182
 	dc.l SCode			; Pointer to security code
 
 SCode:
@@ -63,7 +63,6 @@ SoftDIPs:
 	dc.b $00,$00,$00,$00,$00,$00,$00,$00,$00
 
 ErrG:
-	; Todo !
 	rte
 	
 ErrDivZero:
@@ -71,7 +70,6 @@ ErrCHK:
 ErrTRAPV:
 ErrLineA:
 ErrLineF:
-	; Todo !
     rts
 
 jt_user:
@@ -93,8 +91,6 @@ User:
 _rt:
 	rts
 
-
 Init:
 	move.w  #1337,$10F000		; Backup RAM init
 	rts
-
