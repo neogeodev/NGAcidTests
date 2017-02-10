@@ -41,8 +41,10 @@ Start:
     move.w  #WHITE,PALETTES+2		; Palette 0 color 1: Text
     move.w  #BLACK,PALETTES+4		; Palette 0 color 2
     move.w  #$0BBB,PALETTES+8		; Palette 0 color 4: Box
-    move.w  #BLACK,PALETTES+20		; Palette 1 color 2
-    move.w  #RED,PALETTES+24		; Palette 1 color 4: Line
+    move.w  #BLACK,PALETTES+20		; Palette 0 color 10
+    move.w  #RED,PALETTES+24		; Palette 0 color 12: Line
+    move.w  #BLACK,PALETTES+32		; Palette 1 color 0
+    move.w  #GREEN,PALETTES+34		; Palette 1 color 1: "BEEP"
     move.w  #BLACK,BACKDROPCOLOR
 
     jsr     BIOSF_FIX_CLEAR
@@ -66,7 +68,8 @@ Start:
 	move.w  #$017F,REG_TIMERLOW	 	; 384-1 pixels
     move.w  #7,REG_IRQACK			; Clear IRQs
 
-    clr.b   FLAG_VBI
+    move.b  #10,SOUND_CODE
+	clr.b   FLAG_VBI
 
 MainLoop:
     tst.b   FLAG_VBI				; Wait for VBI
@@ -88,6 +91,7 @@ MainLoop:
     move.w  #$0F90,d0
     bra     .flash
 .red:
+	move.b  SOUND_CODE,REG_SOUND	; Ask for beep
     move.w  #$0F00,d0
 .flash:
     move.w  d0,PALETTES+8
@@ -123,6 +127,7 @@ MainLoop:
 	eor.b   d2,d0				; Difference
 	move.b  d1,PREV_INPUT
 	and.b   d1,d0				; Test for rising edge
+	move.b  d0,ACTIVE_INPUT
 	beq     .no_input
 	move.w  LAG_LINES,d0		; Quick, latch !
 	move.b  #$2B,LAG_SIGN       ; +: Too late
@@ -148,6 +153,21 @@ MainLoop:
 	bne     .trig_loop			; Exit loop at end of active display
 
 
+    move.b  REG_P1CNT,d0
+    move.b  REG_P2CNT,d1
+    and.b   d1,d0				; Mix P1 & P2 inputs
+    not.b   d0
+	btst    #CNT_UP,d0
+	beq     .no_up
+    move.b  #10,SOUND_CODE
+    move.w  #GREEN,PALETTES+34		; Palette 1 color 1: show "BEEP"
+.no_up:
+	btst    #CNT_DN,d0
+	beq     .no_down
+	clr.b   SOUND_CODE
+    move.w  #BLACK,PALETTES+34		; Palette 1 color 1: hide "BEEP"
+.no_down:
+
 
 	; Display lag value if needed
 	tst.b   FLAG_UPDATE
@@ -172,6 +192,8 @@ MainLoop:
     move.w  d2,d0
     move.w  #$7350,VRAM_ADDR
     jsr     digiwrite
+
+
 
 	; :)
 	move.b  REG_STATUS_A,d0
@@ -290,37 +312,6 @@ hex2bcd:
     bne     .conv_loop
     rts
 
-MESS_MENU:
-	dc.w $0001					; Bytes, end code = $FF
-	dc.w $00FF
-
-	dc.w $2002  				; Set auto-inc
-
-	dc.w $0003					; Set VRAM address
-	dc.w $7184
-
-	dc.w $0108					; Write with big font
-	dc.b "NEOGEO  LAG TEST", $FF
-
-	dc.w $0003					; Set VRAM address
-	dc.w $7230
-
-	dc.w $0007					; Write
-	dc.b "ms", $FF
-
-	dc.w $0003					; Set VRAM address
-	dc.w $7196
-
-	dc.w $0007					; Write
-	dc.b "1 frame = 16.8ms", $FF
-
-	dc.w $0000
-
-box_data:
-    dc.w 17, 4
-    dc.w 12,13,13,13,13,13,13,13,20,13,13,13,13,13,13,13,14
-    dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
-    dc.w 15,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16
-    dc.w 17,18,18,18,18,18,18,18,21,18,18,18,18,18,18,18,19
+	INCLUDE "data.asm"
     
     INCLUDE "video.asm"

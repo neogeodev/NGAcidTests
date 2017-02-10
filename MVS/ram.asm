@@ -12,3 +12,6 @@ DIRECTION:		ds.b 1
 
 VRAM_BUFFER:	ds.w 16
 PREV_INPUT:		ds.b 1
+ACTIVE_INPUT:	ds.b 1
+
+SOUND_CODE:		ds.b 1
