@@ -1,0 +1,43 @@
+32*16 tiles = 512 bits
+
+Hamming(7,4):
+
+6543210 6543210 6543210 6543210 (31 tiles, 4 * 4 bits = 16 bits)
+* 16 tile lines = 256 bits = 32 bytes
+
+At 59 fps, 1 frame out of 2 (29.5 fps):
+524288 bytes / 32 / 29.5 = 556s = 9 minutes... NOPE
+
+Parity:
+
+76543210P76543210P76543210P76543210P (36 tiles, 4 * 4 * 8 bits = 128 bits)
+* 20 tile lines = 2560 bits = 320 bytes
+524288 bytes / 320 / 29.5 = 56s :)
+
+1 tile with 4 quadrants = 16 different tiles = 4 bits coded
+Keeping average brightness constant, 2 quadrants for data, 2 as complement
+So 2 bits coded per tile if only using 2 colors (black/white, 2^2 = 4 possible = 2 bits)
+...4 bits coded per tile if using 4 colors (4^2 = 16 possible = 4 bits)
+
+R--
+-G-
+--B
+RGB
+
+AB : A and C code, B and D are complements
+CD
+
+With colors:
+
+0000 0001 0010 0011 0100 0101 0110 0111
+ -W   RG   GB   BR   -W   RG   GB   BR
+ -W   -W   -W   -W   RG   RG   RG   RG
+
+1000 1001 1010 1011 1100 1101 1110 1111
+ -W   RG   GB   BR   -W   RG   GB   BR
+ GB   GB   GB   GB   BR   BR   BR   BR
+
+Equalized luma, in LAB color space:
+LAB 50,90,-128 (max blue)	RGB 64,55,255
+LAB 50,-128,128 (max green)	RGB 0,152,0
+LAB 50,128,128 (max red)	RGB 255,0,0
